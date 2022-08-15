@@ -1,0 +1,18 @@
+/*
+    light
+    dark
+*/
+.active-text {
+    color: #242347; 
+    color: #E2E1ED;
+}
+
+.inactive-text {
+    color: #DDDADA;
+    color: #5C5C5C;
+}
+
+.tag-border {
+    color: #874BFD;
+    color: #7D56F4;
+}
