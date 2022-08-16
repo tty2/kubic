@@ -1,7 +1,9 @@
 package domain
 
 type Namespace struct {
-	Name string
+	Name   string
+	Status string
+	Age    string
 }
 
 type Deployment struct {

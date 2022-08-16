@@ -2,6 +2,7 @@ package shared
 
 import (
 	"github.com/charmbracelet/bubbles/key"
+	tea "github.com/charmbracelet/bubbletea"
 )
 
 type KeyMap struct {
@@ -11,6 +12,7 @@ type KeyMap struct {
 	Down      key.Binding
 	PrevPage  key.Binding
 	NextPage  key.Binding
+	Select    key.Binding
 	Help      key.Binding
 	HelpShort key.Binding
 	Quit      key.Binding
@@ -61,6 +63,10 @@ func GetKeyMaps() KeyMap {
 		HelpShort: key.NewBinding(
 			key.WithKeys("?"),
 			key.WithHelp("?", "short help"),
+		),
+		Select: key.NewBinding(
+			key.WithKeys(tea.KeyEnter.String()),
+			key.WithHelp("Enter/r", "restore"),
 		),
 		Quit: key.NewBinding(
 			key.WithKeys("q", "esc", "ctrl+c"),

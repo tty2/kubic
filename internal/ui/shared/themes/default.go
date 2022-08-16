@@ -19,3 +19,5 @@ var DefaultTheme = Theme{
 	InactiveText: lipgloss.AdaptiveColor{Light: "#DDDADA", Dark: "#5C5C5C"},
 	Borders:      lipgloss.AdaptiveColor{Light: "#874BFD", Dark: "#7D56F4"},
 }
+
+var MainDocStyle = lipgloss.NewStyle()
