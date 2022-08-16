@@ -1,18 +1,21 @@
 package help
 
 import (
+	"strings"
+
 	bbHelp "github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/tty2/kubic/internal/ui/shared"
+	"github.com/tty2/kubic/internal/ui/shared/elements/divider"
+	"github.com/tty2/kubic/internal/ui/shared/themes"
 )
 
-const fullHelpHeigh = 3
+const fullHelpHeigh = 2
 
 type Model struct {
 	state *shared.State
 	help  bbHelp.Model
-	keys  shared.KeyMap
 }
 
 func New(state *shared.State) *Model {
@@ -30,7 +33,6 @@ func New(state *shared.State) *Model {
 	return &Model{
 		state: state,
 		help:  help,
-		keys:  shared.GetKeyMaps(),
 	}
 }
 
@@ -40,7 +42,7 @@ func (m *Model) Init() tea.Cmd {
 
 func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	if msg, ok := msg.(tea.KeyMsg); ok {
-		if key.Matches(msg, m.keys.Help) {
+		if key.Matches(msg, m.state.KeyMap.Help) {
 			m.help.ShowAll = !m.help.ShowAll
 			if m.help.ShowAll {
 				m.state.Areas.HelpBar.Height += fullHelpHeigh
@@ -55,24 +57,16 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m *Model) View() string {
-	if !m.help.ShowAll {
-		return helpStyle.Copy().
-			Render(m.help.ShortHelpView(m.keys.ShortHelp()))
+	var s strings.Builder
+	s.WriteString("\n")
+	s.WriteString(divider.HorizontalLine(m.state.ScreenWidth, themes.DefaultTheme.InactiveText))
+	s.WriteString("\n")
+	if m.help.ShowAll {
+		s.WriteString(m.help.FullHelpView(m.state.KeyMap.FullHelp()))
+	} else {
+		s.WriteString(m.help.ShortHelpView(m.state.KeyMap.ShortHelp()))
 	}
+	m.help.Width = m.state.ScreenWidth
 
-	var kb [][]key.Binding
-	// if m.state.CurrentTab == shared.SnapshotsTab {
-	// 	kb = m.keys.SnapshotsHelp()
-	// } else if m.state.CurrentTab == shared.SettingsTab {
-	// 	kb = m.keys.SettingsHelp()
-	// }
-
-	// m.SetWidth(m.state.ScreenWidth)
-
-	return helpStyle.Copy().
-		Render(m.help.FullHelpView(kb))
+	return helpStyle.Copy().Height(m.state.Areas.HelpBar.Height).Render(s.String())
 }
-
-// func (m *Model) SetWidth(width int) {
-// 	m.help.Width = width
-// }

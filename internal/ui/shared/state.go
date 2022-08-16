@@ -1,6 +1,8 @@
 package shared
 
-import "github.com/tty2/kubic/internal/ui/shared/themes"
+import (
+	"github.com/tty2/kubic/internal/ui/shared/themes"
+)
 
 type State struct {
 	Namespace    string
@@ -9,6 +11,7 @@ type State struct {
 	CurrentTab   TabItem
 	Theme        *themes.Theme
 	Areas        *uiAreas
+	KeyMap       *KeyMap
 }
 
 func NewState(theme *themes.Theme) *State {
@@ -16,18 +19,15 @@ func NewState(theme *themes.Theme) *State {
 		theme = &themes.DefaultTheme
 	}
 
+	keyMap := GetKeyMaps()
+
 	return &State{
-		Theme: theme,
-		Areas: initAreas(),
+		Theme:  theme,
+		Areas:  initAreas(),
+		KeyMap: &keyMap,
 	}
 }
 
 func (s *State) ResizeAreas() {
-	s.Areas.TabBar.Coords.X2 = s.ScreenWidth
-	s.Areas.MainContent.Coords.X2 = s.ScreenWidth
-	s.Areas.HelpBar.Coords.X2 = s.ScreenWidth
-
-	s.Areas.MainContent.Coords.Y2 = s.ScreenHeight - (s.Areas.TabBar.Height + s.Areas.HelpBar.Height)
-	s.Areas.HelpBar.Coords.Y1 = s.ScreenHeight - s.Areas.HelpBar.Height - 1
-	s.Areas.HelpBar.Coords.Y2 = s.ScreenHeight
+	s.Areas.MainContent.Height = s.ScreenHeight - (s.Areas.TabBar.Height + s.Areas.HelpBar.Height)
 }
