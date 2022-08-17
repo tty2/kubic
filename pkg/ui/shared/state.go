@@ -1,7 +1,7 @@
 package shared
 
 import (
-	"github.com/tty2/kubic/internal/ui/shared/themes"
+	"github.com/tty2/kubic/pkg/ui/shared/themes"
 )
 
 type State struct {

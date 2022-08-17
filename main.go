@@ -4,9 +4,9 @@ import (
 	"log"
 
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/tty2/kubic/internal/commands/k8s"
-	"github.com/tty2/kubic/internal/config"
-	"github.com/tty2/kubic/internal/ui"
+	"github.com/tty2/kubic/pkg/config"
+	"github.com/tty2/kubic/pkg/k8s"
+	"github.com/tty2/kubic/pkg/ui"
 )
 
 func main() {

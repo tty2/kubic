@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/lipgloss"
-	"github.com/tty2/kubic/internal/ui/shared"
+	"github.com/tty2/kubic/pkg/ui/shared"
 )
 
 const (

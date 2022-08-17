@@ -5,7 +5,7 @@ package help
 
 import (
 	"github.com/charmbracelet/lipgloss"
-	"github.com/tty2/kubic/internal/ui/shared/themes"
+	"github.com/tty2/kubic/pkg/ui/shared/themes"
 )
 
 // nolint:gochecknoglobals // this is used only in this package

@@ -6,9 +6,9 @@ import (
 	bbHelp "github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/tty2/kubic/internal/ui/shared"
-	"github.com/tty2/kubic/internal/ui/shared/elements/divider"
-	"github.com/tty2/kubic/internal/ui/shared/themes"
+	"github.com/tty2/kubic/pkg/ui/shared"
+	"github.com/tty2/kubic/pkg/ui/shared/elements/divider"
+	"github.com/tty2/kubic/pkg/ui/shared/themes"
 )
 
 const fullHelpHeigh = 2

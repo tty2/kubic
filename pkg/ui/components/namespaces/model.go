@@ -2,16 +2,19 @@ package namespaces
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"strings"
 
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
+	"github.com/charmbracelet/bubbles/paginator"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/tty2/kubic/internal/domain"
-	"github.com/tty2/kubic/internal/ui/shared"
-	"github.com/tty2/kubic/internal/ui/shared/elements/divider"
-	"github.com/tty2/kubic/internal/ui/shared/themes"
+	"github.com/charmbracelet/lipgloss"
+	"github.com/tty2/kubic/pkg/domain"
+	"github.com/tty2/kubic/pkg/ui/shared"
+	"github.com/tty2/kubic/pkg/ui/shared/elements/divider"
+	"github.com/tty2/kubic/pkg/ui/shared/themes"
 )
 
 type namespacesRepo interface {
@@ -38,8 +41,10 @@ func New(st *shared.State, repo namespacesRepo) (*Model, error) {
 	itemsModel.SetShowTitle(false)
 	itemsModel.SetShowStatusBar(false)
 	itemsModel.SetShowHelp(false)
+	itemsModel.Paginator.Type = paginator.Dots
 	m.list = itemsModel
 	m.UpdateList()
+	m.setActive()
 
 	return &m, nil
 }
@@ -64,7 +69,13 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m *Model) View() string {
 	var s strings.Builder
 	s.WriteString("\n")
-	s.WriteString(themes.MainDocStyle.Foreground(themes.DefaultTheme.InactiveText).Render(getHeader()))
+	header := getHeader()
+	header = fmt.Sprintf("%s%s%s",
+		header,
+		strings.Repeat(" ", shared.Max(len(minColumnGap),
+			m.state.ScreenWidth-lipgloss.Width(header)-lipgloss.Width(m.state.Namespace)-tableHeaderHorizontalMargin)),
+		m.state.Namespace)
+	s.WriteString(themes.MainDocStyle.Foreground(themes.DefaultTheme.InactiveText).Render(header))
 	s.WriteString("\n")
 	s.WriteString(divider.HorizontalLine(m.state.ScreenWidth, themes.DefaultTheme.InactiveText))
 	s.WriteString("\n")
@@ -82,7 +93,13 @@ func (m *Model) setActive() {
 		if !ok {
 			return
 		}
-		s.Active = i == selected
+		if i == selected {
+			s.Active = true
+			m.state.Namespace = s.Name
+
+			continue
+		}
+		s.Active = false
 	}
 }
 
@@ -104,7 +121,6 @@ func (m *Model) UpdateList() {
 		}
 
 		items[i] = &n
-		m.state.Namespace = n.Name
 	}
 
 	m.list.SetItems(items)

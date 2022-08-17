@@ -7,12 +7,12 @@ import (
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	"github.com/tty2/kubic/internal/commands/k8s"
-	"github.com/tty2/kubic/internal/config"
-	"github.com/tty2/kubic/internal/ui/components/help"
-	"github.com/tty2/kubic/internal/ui/components/namespaces"
-	"github.com/tty2/kubic/internal/ui/components/tabs"
-	"github.com/tty2/kubic/internal/ui/shared"
+	"github.com/tty2/kubic/pkg/config"
+	"github.com/tty2/kubic/pkg/k8s"
+	"github.com/tty2/kubic/pkg/ui/components/help"
+	"github.com/tty2/kubic/pkg/ui/components/namespaces"
+	"github.com/tty2/kubic/pkg/ui/components/tabs"
+	"github.com/tty2/kubic/pkg/ui/shared"
 	"golang.org/x/term"
 )
 

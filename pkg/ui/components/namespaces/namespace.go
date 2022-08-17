@@ -11,14 +11,15 @@ import (
 )
 
 const (
-	active                = "✔"
-	inactive              = " "
-	namespaceNameColumn   = "Name"
-	namespaceStatusColumn = "Status"
-	namespaceAgeColumn    = "Age"
-	minColumnGap          = "  "
-	nameColumnLen         = 20
-	tableHeaderHeight     = 3
+	active                      = "✔"
+	inactive                    = " "
+	namespaceNameColumn         = "Name"
+	namespaceStatusColumn       = "Status"
+	namespaceAgeColumn          = "Age"
+	minColumnGap                = "  "
+	nameColumnLen               = 20
+	tableHeaderHeight           = 3
+	tableHeaderHorizontalMargin = 4
 )
 
 type (

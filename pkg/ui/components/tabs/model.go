@@ -3,7 +3,7 @@ package tabs
 import (
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/tty2/kubic/internal/ui/shared"
+	"github.com/tty2/kubic/pkg/ui/shared"
 )
 
 type Model struct {
