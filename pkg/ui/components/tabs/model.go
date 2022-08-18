@@ -7,15 +7,13 @@ import (
 )
 
 type Model struct {
-	tabs  []*tab
-	state *shared.State
-	keys  shared.KeyMap
+	app  *shared.App
+	tabs []*tab
 }
 
-func New(st *shared.State, ti []shared.TabItem) *Model {
+func New(app *shared.App, ti []shared.TabItem) *Model {
 	m := Model{
-		state: st,
-		keys:  shared.GetKeyMaps(),
+		app: app,
 	}
 
 	for i := range ti {
@@ -31,9 +29,9 @@ func (m *Model) Init() tea.Cmd {
 
 func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	if msg, ok := msg.(tea.KeyMsg); ok {
-		if key.Matches(msg, m.keys.Tab) {
+		if key.Matches(msg, m.app.KeyMap.Tab) {
 			m.next()
-		} else if key.Matches(msg, m.keys.ShiftTab) {
+		} else if key.Matches(msg, m.app.KeyMap.ShiftTab) {
 			m.prev()
 		}
 	}
@@ -46,21 +44,21 @@ func (m *Model) View() string {
 	for i := range m.tabs {
 		tabs = append(tabs,
 			m.tabs[i].render(
-				m.tabs[i].getID() == m.state.CurrentTab,
+				m.tabs[i].getID() == m.app.CurrentTab,
 			))
 	}
 
-	return renderTabBar(m.state.ScreenWidth, tabs)
+	return renderTabBar(m.app.GUI.ScreenWidth, tabs)
 }
 
 func (m *Model) next() {
 	i := m.getNextTabIndex()
-	m.state.CurrentTab = m.tabs[i].getID()
+	m.app.CurrentTab = m.tabs[i].getID()
 }
 
 func (m *Model) prev() {
 	i := m.getPrevTabIndex()
-	m.state.CurrentTab = m.tabs[i].getID()
+	m.app.CurrentTab = m.tabs[i].getID()
 }
 
 func (m *Model) getNextTabIndex() int {
@@ -73,7 +71,7 @@ func (m *Model) getPrevTabIndex() int {
 
 func (m *Model) getCurrentTabIndex() int {
 	for i := range m.tabs {
-		if m.state.CurrentTab == m.tabs[i].getID() {
+		if m.app.CurrentTab == m.tabs[i].getID() {
 			return i
 		}
 	}

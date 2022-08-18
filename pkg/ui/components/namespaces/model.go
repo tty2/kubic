@@ -22,17 +22,15 @@ type namespacesRepo interface {
 }
 
 type Model struct {
-	repo  namespacesRepo
-	state *shared.State
-	list  list.Model
-	keys  shared.KeyMap
+	app  *shared.App
+	list list.Model
+	repo namespacesRepo
 }
 
-func New(st *shared.State, repo namespacesRepo) (*Model, error) {
+func New(app *shared.App, repo namespacesRepo) (*Model, error) {
 	m := Model{
-		repo:  repo,
-		state: st,
-		keys:  shared.GetKeyMaps(),
+		repo: repo,
+		app:  app,
 	}
 
 	itemsModel := list.New([]list.Item{}, &namespace{}, 0, 0)
@@ -55,7 +53,7 @@ func (m *Model) Init() tea.Cmd {
 
 func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	if msg, ok := msg.(tea.KeyMsg); ok {
-		if key.Matches(msg, m.keys.Select) {
+		if key.Matches(msg, m.app.KeyMap.Select) {
 			m.setActive()
 		}
 	}
@@ -73,13 +71,13 @@ func (m *Model) View() string {
 	header = fmt.Sprintf("%s%s%s",
 		header,
 		strings.Repeat(" ", shared.Max(len(minColumnGap),
-			m.state.ScreenWidth-lipgloss.Width(header)-lipgloss.Width(m.state.Namespace)-tableHeaderHorizontalMargin)),
-		m.state.Namespace)
+			m.app.GUI.ScreenWidth-lipgloss.Width(header)-lipgloss.Width(m.app.CurrentNamespace)-tableHeaderHorizontalMargin)),
+		m.app.CurrentNamespace)
 	s.WriteString(themes.MainDocStyle.Foreground(themes.DefaultTheme.InactiveText).Render(header))
 	s.WriteString("\n")
-	s.WriteString(divider.HorizontalLine(m.state.ScreenWidth, themes.DefaultTheme.InactiveText))
+	s.WriteString(divider.HorizontalLine(m.app.GUI.ScreenWidth, themes.DefaultTheme.InactiveText))
 	s.WriteString("\n")
-	m.list.SetHeight(m.state.Areas.MainContent.Height - tableHeaderHeight)
+	m.list.SetHeight(m.app.GUI.Areas.MainContent.Height - tableHeaderHeight)
 	s.WriteString(listStyle.Render(m.list.View()))
 
 	return s.String()
@@ -95,7 +93,7 @@ func (m *Model) setActive() {
 		}
 		if i == selected {
 			s.Active = true
-			m.state.Namespace = s.Name
+			m.app.CurrentNamespace = s.Name
 
 			continue
 		}
