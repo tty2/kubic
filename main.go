@@ -17,12 +17,14 @@ func main() {
 }
 
 func run() error {
-	k8sClient, err := k8s.New()
+	cfg := config.New()
+
+	k8sClient, err := k8s.New(cfg.KubeConfigPath)
 	if err != nil {
 		return err
 	}
 
-	gui, err := ui.New(&config.Config{}, k8sClient)
+	gui, err := ui.New(k8sClient)
 	if err != nil {
 		return err
 	}

@@ -60,11 +60,13 @@ func (v *namespace) Render(w io.Writer, m list.Model, index int, listItem list.I
 	if s.Active {
 		sign = signActiveStyle.Render(active)
 	}
+
 	var row strings.Builder
+	namespaceInfo := fmt.Sprintf("%s %s\t%s", name, s.Status, s.Age)
 	if index == m.Index() {
-		row.WriteString(fmt.Sprintf("%s %s", sign, selectedItem.Render(fmt.Sprintf("%s %s\t%s", name, s.Status, s.Age))))
+		row.WriteString(fmt.Sprintf("%s %s", sign, selectedItem.Render(namespaceInfo)))
 	} else {
-		row.WriteString(fmt.Sprintf("%s %s", sign, normalItem.Render(fmt.Sprintf("%s %s\t%s", name, s.Status, s.Age))))
+		row.WriteString(fmt.Sprintf("%s %s", sign, normalItem.Render(namespaceInfo)))
 	}
 
 	fmt.Fprint(w, row.String())

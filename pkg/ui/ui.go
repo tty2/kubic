@@ -7,7 +7,6 @@ import (
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	"github.com/tty2/kubic/pkg/config"
 	"github.com/tty2/kubic/pkg/k8s"
 	"github.com/tty2/kubic/pkg/ui/components/help"
 	"github.com/tty2/kubic/pkg/ui/components/namespaces"
@@ -24,45 +23,41 @@ type components struct {
 	help tea.Model
 }
 
-type App struct {
+type MainModel struct {
 	components components
-	config     *config.Config
-	state      *shared.State
-	keys       shared.KeyMap
+	app        *shared.App
 }
 
-func New(cfg *config.Config, k8sClient *k8s.Client) (tea.Model, error) {
-	st := shared.NewState(nil)
-	app := App{
-		config: cfg,
-		state:  st,
-		keys:   shared.GetKeyMaps(),
+func New(k8sClient *k8s.Client) (tea.Model, error) {
+	app := shared.NewApp(nil)
+	model := MainModel{
+		app: app,
 		components: components{
-			tabs: tabs.New(st, shared.GetTabItems()),
-			help: help.New(st),
+			tabs: tabs.New(app, shared.GetTabItems()),
+			help: help.New(app),
 		},
 	}
 
-	ns, err := namespaces.New(st, k8sClient)
+	ns, err := namespaces.New(app, k8sClient)
 	if err != nil {
 		return nil, err
 	}
-	app.components.namespaces = ns
+	model.components.namespaces = ns
 
-	app.state.ScreenWidth, app.state.ScreenHeight, err = term.GetSize(int(os.Stdout.Fd()))
+	model.app.GUI.ScreenWidth, model.app.GUI.ScreenHeight, err = term.GetSize(int(os.Stdout.Fd()))
 	if err != nil {
 		return nil, err
 	}
-	app.state.ResizeAreas()
+	model.app.ResizeAreas()
 
-	return &app, nil
+	return &model, nil
 }
 
-func (a *App) Init() tea.Cmd {
+func (model *MainModel) Init() tea.Cmd {
 	return nil
 }
 
-func (a *App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (model *MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var (
 		cmd  tea.Cmd
 		cmds []tea.Cmd
@@ -70,59 +65,59 @@ func (a *App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
-		cmd = a.keyEventHandle(msg)
+		cmd = model.keyEventHandle(msg)
 	case tea.WindowSizeMsg:
-		a.onWindowSizeChanged(msg)
+		model.onWindowSizeChanged(msg)
 	}
 	cmds = append(cmds, cmd)
 
-	return a, tea.Batch(cmds...)
+	return model, tea.Batch(cmds...)
 }
 
-func (a *App) View() string {
+func (model *MainModel) View() string {
 	s := strings.Builder{}
 
 	// tabs
-	s.WriteString(a.components.tabs.View())
+	s.WriteString(model.components.tabs.View())
 	s.WriteString("\n")
 
 	// content
-	if a.state.CurrentTab == shared.NamespacesTab {
-		mainContent := lipgloss.JoinHorizontal(lipgloss.Top, a.components.namespaces.View())
+	if model.app.CurrentTab == shared.NamespacesTab {
+		mainContent := lipgloss.JoinHorizontal(lipgloss.Top, model.components.namespaces.View())
 		s.WriteString(mainContent)
 		s.WriteString("\n")
 	}
 
 	// help
 	s.WriteString(lipgloss.PlaceVertical(
-		a.state.Areas.HelpBar.Height,
-		lipgloss.Bottom, a.components.help.View()))
+		model.app.GUI.Areas.HelpBar.Height,
+		lipgloss.Bottom, model.components.help.View()))
 
 	return s.String()
 }
 
-func (a *App) keyEventHandle(msg tea.KeyMsg) tea.Cmd {
+func (model *MainModel) keyEventHandle(msg tea.KeyMsg) tea.Cmd {
 	switch {
-	case key.Matches(msg, a.keys.Quit):
+	case key.Matches(msg, model.app.KeyMap.Quit):
 		return tea.Quit
-	case key.Matches(msg, a.keys.Help):
-		a.components.help.Update(msg)
+	case key.Matches(msg, model.app.KeyMap.Help):
+		model.components.help.Update(msg)
 
 		return nil
-	case key.Matches(msg, a.keys.Tab, a.keys.ShiftTab):
-		a.components.tabs.Update(msg)
+	case key.Matches(msg, model.app.KeyMap.Tab, model.app.KeyMap.ShiftTab):
+		model.components.tabs.Update(msg)
 
 		return nil
 	default:
-		return a.componentsKeyEventHandle(msg)
+		return model.componentsKeyEventHandle(msg)
 	}
 }
 
-func (a *App) componentsKeyEventHandle(msg tea.KeyMsg) tea.Cmd {
+func (model *MainModel) componentsKeyEventHandle(msg tea.KeyMsg) tea.Cmd {
 	var cmd tea.Cmd
-	switch a.state.CurrentTab {
+	switch model.app.CurrentTab {
 	case shared.NamespacesTab:
-		_, cmd = a.components.namespaces.Update(msg)
+		_, cmd = model.components.namespaces.Update(msg)
 		// case shared.SettingsTab:
 		// 	_, cmd = a.components.settings.Update(msg)
 	}
@@ -130,8 +125,8 @@ func (a *App) componentsKeyEventHandle(msg tea.KeyMsg) tea.Cmd {
 	return cmd
 }
 
-func (a *App) onWindowSizeChanged(msg tea.WindowSizeMsg) {
-	a.state.ScreenWidth = msg.Width
-	a.state.ScreenHeight = msg.Height
-	a.state.ResizeAreas()
+func (model *MainModel) onWindowSizeChanged(msg tea.WindowSizeMsg) {
+	model.app.GUI.ScreenWidth = msg.Width
+	model.app.GUI.ScreenHeight = msg.Height
+	model.app.ResizeAreas()
 }

@@ -2,9 +2,7 @@ package k8s
 
 import (
 	"context"
-	"flag"
 	"fmt"
-	"path/filepath"
 	"time"
 
 	"github.com/tty2/kubic/pkg/domain"
@@ -12,34 +10,25 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
-	"k8s.io/client-go/util/homedir"
 )
 
 type Client struct {
 	Set *kubernetes.Clientset
 }
 
-func New() (*Client, error) {
-	var kubeconfig *string
-	if home := homedir.HomeDir(); home != "" {
-		kubeconfig = flag.String("cfg", filepath.Join(home, ".kube", "config"), "(optional) absolute path to the kube config file")
-	} else {
-		kubeconfig = flag.String("cfg", "", "absolute path to the kube config file")
-	}
-	flag.Parse()
-
-	config, err := clientcmd.BuildConfigFromFlags("", *kubeconfig)
+func New(configPath string) (*Client, error) {
+	config, err := clientcmd.BuildConfigFromFlags("", configPath)
 	if err != nil {
 		return nil, err
 	}
 
-	clientset, err := kubernetes.NewForConfig(config)
+	clientSet, err := kubernetes.NewForConfig(config)
 	if err != nil {
 		return nil, err
 	}
 
 	return &Client{
-		Set: clientset,
+		Set: clientSet,
 	}, nil
 }
 

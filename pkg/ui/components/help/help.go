@@ -14,11 +14,11 @@ import (
 const fullHelpHeigh = 2
 
 type Model struct {
-	state *shared.State
-	help  bbHelp.Model
+	app  *shared.App
+	help bbHelp.Model
 }
 
-func New(state *shared.State) *Model {
+func New(app *shared.App) *Model {
 	help := bbHelp.NewModel()
 	help.Styles = bbHelp.Styles{
 		ShortDesc:      helpTextStyle.Copy(),
@@ -31,8 +31,8 @@ func New(state *shared.State) *Model {
 	}
 
 	return &Model{
-		state: state,
-		help:  help,
+		app:  app,
+		help: help,
 	}
 }
 
@@ -42,14 +42,14 @@ func (m *Model) Init() tea.Cmd {
 
 func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	if msg, ok := msg.(tea.KeyMsg); ok {
-		if key.Matches(msg, m.state.KeyMap.Help) {
+		if key.Matches(msg, m.app.KeyMap.Help) {
 			m.help.ShowAll = !m.help.ShowAll
 			if m.help.ShowAll {
-				m.state.Areas.HelpBar.Height += fullHelpHeigh
+				m.app.GUI.Areas.HelpBar.Height += fullHelpHeigh
 			} else {
-				m.state.Areas.HelpBar.Height -= fullHelpHeigh
+				m.app.GUI.Areas.HelpBar.Height -= fullHelpHeigh
 			}
-			m.state.ResizeAreas()
+			m.app.ResizeAreas()
 		}
 	}
 
@@ -59,14 +59,14 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m *Model) View() string {
 	var s strings.Builder
 	s.WriteString("\n")
-	s.WriteString(divider.HorizontalLine(m.state.ScreenWidth, themes.DefaultTheme.InactiveText))
+	s.WriteString(divider.HorizontalLine(m.app.GUI.ScreenWidth, themes.DefaultTheme.InactiveText))
 	s.WriteString("\n")
 	if m.help.ShowAll {
-		s.WriteString(m.help.FullHelpView(m.state.KeyMap.FullHelp()))
+		s.WriteString(m.help.FullHelpView(m.app.KeyMap.FullHelp()))
 	} else {
-		s.WriteString(m.help.ShortHelpView(m.state.KeyMap.ShortHelp()))
+		s.WriteString(m.help.ShortHelpView(m.app.KeyMap.ShortHelp()))
 	}
-	m.help.Width = m.state.ScreenWidth
+	m.help.Width = m.app.GUI.ScreenWidth
 
-	return helpStyle.Copy().Height(m.state.Areas.HelpBar.Height).Render(s.String())
+	return helpStyle.Copy().Height(m.app.GUI.Areas.HelpBar.Height).Render(s.String())
 }
