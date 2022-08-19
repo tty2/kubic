@@ -7,7 +7,7 @@ import (
 type App struct {
 	CurrentNamespace string
 	CurrentTab       TabItem
-	Theme            *themes.Theme
+	Styles           *themes.Styles
 	KeyMap           *KeyMap
 	GUI              GUI
 }
@@ -18,15 +18,12 @@ type GUI struct {
 	Areas        *uiAreas
 }
 
-func NewApp(theme *themes.Theme) *App {
-	if theme == nil {
-		theme = &themes.DefaultTheme
-	}
-
+func NewApp(theme themes.Theme) *App {
 	keyMap := GetKeyMaps()
+	styles := themes.GetStyle(theme)
 
 	return &App{
-		Theme:  theme,
+		Styles: &styles,
 		KeyMap: &keyMap,
 		GUI: GUI{
 			Areas: initAreas(),

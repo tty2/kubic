@@ -12,6 +12,7 @@ import (
 	"github.com/tty2/kubic/pkg/ui/components/namespaces"
 	"github.com/tty2/kubic/pkg/ui/components/tabs"
 	"github.com/tty2/kubic/pkg/ui/shared"
+	"github.com/tty2/kubic/pkg/ui/shared/themes"
 	"golang.org/x/term"
 )
 
@@ -28,8 +29,8 @@ type MainModel struct {
 	app        *shared.App
 }
 
-func New(k8sClient *k8s.Client) (tea.Model, error) {
-	app := shared.NewApp(nil)
+func New(k8sClient *k8s.Client, theme themes.Theme) (tea.Model, error) {
+	app := shared.NewApp(theme)
 	model := MainModel{
 		app: app,
 		components: components{

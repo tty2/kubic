@@ -1,26 +1,41 @@
+/*
+Package config keeps all config files.
+*/
 package config
 
 import (
-	"flag"
+	"errors"
+	"fmt"
 	"path/filepath"
 
+	"github.com/jessevdk/go-flags"
 	"k8s.io/client-go/util/homedir"
 )
 
+// SearchConfig for application.
+// nolint lll // we need all of tags here. If we add CR here we'll catch structtag: *** key:"value" pairs not separated by spaces (govet)
 type Config struct {
-	KubeConfigPath string
+	KubeConfigPath string `short:"c" long:"config" env:"KUBIC_KUBERNETES_CONFIG_PATH" description:"kubernetes config file path"`
+	ThemePath      string `short:"t" long:"theme" env:"KUBIC_THEME_FILE_PATH" default:"./style.css" description:"theme file path"`
 }
 
-func New() Config {
-	var kubeConfig *string
-	if home := homedir.HomeDir(); home != "" {
-		kubeConfig = flag.String("cfg", filepath.Join(home, ".kube", "config"), "(optional) absolute path to the kube config file")
-	} else {
-		kubeConfig = flag.String("cfg", "", "absolute path to the kube config file")
-	}
-	flag.Parse()
+// LoadSearch sets ENV variables and returns all Config structure.
+func New() (Config, error) {
+	var config Config
 
-	return Config{
-		KubeConfigPath: *kubeConfig,
+	parser := flags.NewParser(&config, flags.Default)
+	_, err := parser.Parse()
+	if err != nil {
+		return Config{}, fmt.Errorf("couldn't setup config: %v", err)
 	}
+
+	if config.KubeConfigPath == "" {
+		home := homedir.HomeDir()
+		if home == "" {
+			return Config{}, errors.New("setup file for kubernetes config or add it to ~/.kube/config")
+		}
+		config.KubeConfigPath = filepath.Join(home, ".kube", "config")
+	}
+
+	return config, nil
 }

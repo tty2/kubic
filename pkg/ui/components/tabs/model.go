@@ -1,23 +1,27 @@
 package tabs
 
 import (
+	"strings"
+
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 	"github.com/tty2/kubic/pkg/ui/shared"
+)
+
+const (
+	tabsLeftRightIndents = 2
 )
 
 type Model struct {
 	app  *shared.App
-	tabs []*tab
+	tabs []shared.TabItem
 }
 
 func New(app *shared.App, ti []shared.TabItem) *Model {
 	m := Model{
-		app: app,
-	}
-
-	for i := range ti {
-		m.tabs = append(m.tabs, newTab(ti[i]))
+		app:  app,
+		tabs: ti,
 	}
 
 	return &m
@@ -40,25 +44,29 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m *Model) View() string {
-	tabs := make([]string, 0, len(m.tabs))
-	for i := range m.tabs {
-		tabs = append(tabs,
-			m.tabs[i].render(
-				m.tabs[i].getID() == m.app.CurrentTab,
-			))
-	}
+	titles := m.getTabsTitles()
 
-	return renderTabBar(m.app.GUI.ScreenWidth, tabs)
+	row := lipgloss.JoinHorizontal(
+		lipgloss.Top,
+		titles...,
+	)
+
+	gap := m.app.Styles.TabsGap.Render(
+		strings.Repeat(" ", shared.Max(0, m.app.GUI.ScreenWidth-lipgloss.Width(row)-tabsLeftRightIndents)),
+	)
+
+	return m.app.Styles.InitStyle.Copy().
+		Render(lipgloss.JoinHorizontal(lipgloss.Bottom, row, gap))
 }
 
 func (m *Model) next() {
 	i := m.getNextTabIndex()
-	m.app.CurrentTab = m.tabs[i].getID()
+	m.app.CurrentTab = m.tabs[i]
 }
 
 func (m *Model) prev() {
 	i := m.getPrevTabIndex()
-	m.app.CurrentTab = m.tabs[i].getID()
+	m.app.CurrentTab = m.tabs[i]
 }
 
 func (m *Model) getNextTabIndex() int {
@@ -71,10 +79,24 @@ func (m *Model) getPrevTabIndex() int {
 
 func (m *Model) getCurrentTabIndex() int {
 	for i := range m.tabs {
-		if m.app.CurrentTab == m.tabs[i].getID() {
+		if m.app.CurrentTab == m.tabs[i] {
 			return i
 		}
 	}
 
 	return 0
+}
+
+func (m *Model) getTabsTitles() []string {
+	titles := make([]string, len(m.tabs))
+	for i := range m.tabs {
+		title := m.tabs[i].String()
+		if m.tabs[i] == m.app.CurrentTab {
+			titles[i] = m.app.Styles.ActiveTab.Render(title)
+		} else {
+			titles[i] = m.app.Styles.InactiveTab.Render(title)
+		}
+	}
+
+	return titles
 }

@@ -7,6 +7,7 @@ import (
 	"github.com/tty2/kubic/pkg/config"
 	"github.com/tty2/kubic/pkg/k8s"
 	"github.com/tty2/kubic/pkg/ui"
+	"github.com/tty2/kubic/pkg/ui/shared/themes"
 )
 
 func main() {
@@ -17,18 +18,22 @@ func main() {
 }
 
 func run() error {
-	cfg := config.New()
+	cfg, err := config.New()
+	if err != nil {
+		return err
+	}
+
+	theme := themes.InitTheme(cfg.ThemePath)
 
 	k8sClient, err := k8s.New(cfg.KubeConfigPath)
 	if err != nil {
 		return err
 	}
 
-	gui, err := ui.New(k8sClient)
+	gui, err := ui.New(k8sClient, theme)
 	if err != nil {
 		return err
 	}
-
 	app := tea.NewProgram(
 		gui,
 		tea.WithAltScreen(),
