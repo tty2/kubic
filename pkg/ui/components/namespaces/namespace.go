@@ -7,20 +7,19 @@ import (
 
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
+	"github.com/tty2/kubic/pkg/ui/shared"
 	"github.com/tty2/kubic/pkg/ui/shared/themes"
 )
 
 const (
-	active                      = "✔"
-	inactive                    = " "
-	namespaceNameColumn         = "Name"
-	namespaceStatusColumn       = "Status"
-	namespaceAgeColumn          = "Age"
-	minColumnGap                = "  "
-	nameColumnLen               = 20
-	tableHeaderHeight           = 3
-	tableHeaderHorizontalMargin = 4
+	active                = "✔"
+	inactive              = " "
+	namespaceNameColumn   = "Name"
+	namespaceStatusColumn = "Status"
+	namespaceAgeColumn    = "Age"
+	minColumnGap          = "  "
+	nameColumnLen         = 20
+	tableHeaderHeight     = 3
 )
 
 type (
@@ -47,16 +46,7 @@ func (v *namespace) Render(w io.Writer, m list.Model, index int, listItem list.I
 		return
 	}
 
-	var name string
-	lenName := len(s.Name)
-	switch {
-	case lenName > nameColumnLen:
-		name = fmt.Sprintf("%s…", s.Name[:nameColumnLen-1])
-	case lenName < nameColumnLen:
-		name = fmt.Sprintf("%s%s", s.Name, strings.Repeat(" ", nameColumnLen-lipgloss.Width(s.Name)))
-	default:
-		name = s.Name
-	}
+	name := shared.GetTextWithLen(s.Name, nameColumnLen)
 
 	sign := inactive
 	if s.Active {
@@ -64,7 +54,7 @@ func (v *namespace) Render(w io.Writer, m list.Model, index int, listItem list.I
 	}
 
 	var row strings.Builder
-	namespaceInfo := fmt.Sprintf("%s %s\t%s", name, s.Status, s.Age)
+	namespaceInfo := fmt.Sprintf("%s %s%s%s", name, s.Status, minColumnGap, s.Age)
 	if index == m.Index() {
 		row.WriteString(fmt.Sprintf("%s %s", sign, v.Styles.SelectedText.Render(namespaceInfo)))
 	} else {
@@ -80,7 +70,7 @@ func getHeader() string {
 	header.WriteString(namespaceNameColumn)
 	header.WriteString(strings.Repeat(" ", nameColumnLen-len(namespaceNameColumn)+len(minColumnGap)-1))
 	header.WriteString(namespaceStatusColumn)
-	header.WriteString("\t")
+	header.WriteString(minColumnGap)
 	header.WriteString(namespaceAgeColumn)
 
 	return header.String()

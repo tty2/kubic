@@ -27,6 +27,9 @@ type Styles struct {
 	InactiveTab lipgloss.Style
 	ActiveTab   lipgloss.Style
 	TabsGap     lipgloss.Style
+	// margin
+	TextRightMargin int
+	TextLeftMargin  int
 }
 
 // Theme is a struct to keep all the application styles.
@@ -99,6 +102,9 @@ func GetStyle(theme Theme) Styles {
 			BorderRight(false).
 			BorderForeground(theme.Borders).
 			Padding(0, 1),
+
+		TextRightMargin: 1,
+		TextLeftMargin:  2,
 	}
 }
 

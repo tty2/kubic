@@ -4,7 +4,7 @@ Package css is responsible for parsing css file for theme customization.
 This implementation is taken from https://github.com/napsy/go-css
 parser.go file
 
-The implementation has been changed a little bit case the original one has bugs and do not maintained.
+The implementation has been changed a little bit case the original one has bugs and is not maintained.
 */
 package css
 

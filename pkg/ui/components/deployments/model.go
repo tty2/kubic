@@ -1,4 +1,4 @@
-package namespaces
+package deployments
 
 import (
 	"context"
@@ -6,7 +6,6 @@ import (
 	"log"
 	"strings"
 
-	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/bubbles/paginator"
 	tea "github.com/charmbracelet/bubbletea"
@@ -16,23 +15,23 @@ import (
 	"github.com/tty2/kubic/pkg/ui/shared/elements/divider"
 )
 
-type namespacesRepo interface {
-	GetNamespaces(ctx context.Context) ([]domain.Namespace, error)
+type deploymentsRepo interface {
+	GetDeployments(ctx context.Context, namespace string) ([]domain.Deployment, error)
 }
 
 type Model struct {
 	app  *shared.App
 	list list.Model
-	repo namespacesRepo
+	repo deploymentsRepo
 }
 
-func New(app *shared.App, repo namespacesRepo) (*Model, error) {
+func New(app *shared.App, repo deploymentsRepo) (*Model, error) {
 	m := Model{
 		repo: repo,
 		app:  app,
 	}
 
-	itemsModel := list.New([]list.Item{}, &namespace{
+	itemsModel := list.New([]list.Item{}, &deployment{
 		Styles: app.Styles,
 	}, 0, 0)
 	itemsModel.SetFilteringEnabled(false)
@@ -43,7 +42,7 @@ func New(app *shared.App, repo namespacesRepo) (*Model, error) {
 	itemsModel.Paginator.Type = paginator.Dots
 	m.list = itemsModel
 	m.UpdateList()
-	m.setActive()
+	m.app.AddUpdateNamespaceCallback(m.UpdateList)
 
 	return &m, nil
 }
@@ -53,12 +52,11 @@ func (m *Model) Init() tea.Cmd {
 }
 
 func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	if msg, ok := msg.(tea.KeyMsg); ok {
-		if key.Matches(msg, m.app.KeyMap.Select) {
-			m.setActive()
-		}
-	}
-
+	// if msg, ok := msg.(tea.KeyMsg); ok {
+	// 	if key.Matches(msg, m.app.KeyMap.Select) {
+	// 		m.setActive()
+	// 	}
+	// }
 	var cmd tea.Cmd
 	m.list, cmd = m.list.Update(msg)
 
@@ -80,47 +78,27 @@ func (m *Model) View() string {
 	s.WriteString(divider.HorizontalLine(m.app.GUI.ScreenWidth, m.app.Styles.InactiveText))
 	s.WriteString("\n")
 	m.list.SetHeight(m.app.GUI.Areas.MainContent.Height - tableHeaderHeight)
-	s.WriteString(m.app.Styles.InitStyle.Render(m.list.View()))
+	s.WriteString(m.app.Styles.InitStyle.Copy().MarginLeft(m.app.Styles.TextLeftMargin).Render(m.list.View()))
 
 	return s.String()
 }
 
-func (m *Model) setActive() {
-	selected := m.list.Index()
-	items := m.list.Items()
-	for i := range items {
-		s, ok := items[i].(*namespace)
-		if !ok {
-			return
-		}
-		if i == selected {
-			s.Active = true
-			m.app.CurrentNamespace = s.Name
-
-			go m.app.OnUpdateNamespace()
-			continue
-		}
-		s.Active = false
-	}
-}
-
 func (m *Model) UpdateList() {
-	ns, err := m.repo.GetNamespaces(context.Background())
+	ns, err := m.repo.GetDeployments(context.Background(), m.app.CurrentNamespace)
 	if err != nil {
-		log.Fatalf("can't get namespaces: %v", err)
+		log.Fatalf("can't get deployments: %v", err)
 	}
 
 	items := make([]list.Item, len(ns))
 	for i := range ns {
-		n := namespace{
-			Name:   ns[i].Name,
-			Status: ns[i].Status,
-			Age:    ns[i].Age,
+		n := deployment{
+			Name:      ns[i].Name,
+			Ready:     ns[i].Ready,
+			UpToDate:  ns[i].UpToDate,
+			Available: ns[i].Available,
+			Labels:    ns[i].Labels,
+			Age:       ns[i].Age,
 		}
-		if i == 0 {
-			n.Active = true
-		}
-
 		items[i] = &n
 	}
 

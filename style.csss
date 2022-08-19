@@ -1,0 +1,7 @@
+.selected-text {
+    color: #61b0de;
+}
+
+.tab-borders {
+    color: #109f93;
+}
