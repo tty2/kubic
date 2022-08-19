@@ -10,6 +10,7 @@ type App struct {
 	Styles           *themes.Styles
 	KeyMap           *KeyMap
 	GUI              GUI
+	callbacks        []func()
 }
 
 type GUI struct {
@@ -34,4 +35,14 @@ func NewApp(theme themes.Theme) *App {
 func (app *App) ResizeAreas() {
 	app.GUI.Areas.MainContent.Height =
 		app.GUI.ScreenHeight - (app.GUI.Areas.TabBar.Height + app.GUI.Areas.HelpBar.Height)
+}
+
+func (app *App) AddUpdateNamespaceCallback(fn func()) {
+	app.callbacks = append(app.callbacks, fn)
+}
+
+func (app *App) OnUpdateNamespace() {
+	for i := range app.callbacks {
+		app.callbacks[i]()
+	}
 }

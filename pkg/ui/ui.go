@@ -8,6 +8,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/tty2/kubic/pkg/k8s"
+	"github.com/tty2/kubic/pkg/ui/components/deployments"
 	"github.com/tty2/kubic/pkg/ui/components/help"
 	"github.com/tty2/kubic/pkg/ui/components/namespaces"
 	"github.com/tty2/kubic/pkg/ui/components/tabs"
@@ -17,9 +18,9 @@ import (
 )
 
 type components struct {
-	tabs       tea.Model
-	namespaces tea.Model
-	// deployments tea.Model
+	tabs        tea.Model
+	namespaces  tea.Model
+	deployments tea.Model
 	// pods        tea.Model
 	help tea.Model
 }
@@ -44,6 +45,12 @@ func New(k8sClient *k8s.Client, theme themes.Theme) (tea.Model, error) {
 		return nil, err
 	}
 	model.components.namespaces = ns
+
+	dep, err := deployments.New(app, k8sClient)
+	if err != nil {
+		return nil, err
+	}
+	model.components.deployments = dep
 
 	model.app.GUI.ScreenWidth, model.app.GUI.ScreenHeight, err = term.GetSize(int(os.Stdout.Fd()))
 	if err != nil {
@@ -83,9 +90,12 @@ func (model *MainModel) View() string {
 	s.WriteString("\n")
 
 	// content
-	if model.app.CurrentTab == shared.NamespacesTab {
-		mainContent := lipgloss.JoinHorizontal(lipgloss.Top, model.components.namespaces.View())
-		s.WriteString(mainContent)
+	switch model.app.CurrentTab {
+	case shared.NamespacesTab:
+		s.WriteString(lipgloss.JoinHorizontal(lipgloss.Top, model.components.namespaces.View()))
+		s.WriteString("\n")
+	case shared.DeploymentsTab:
+		s.WriteString(lipgloss.JoinHorizontal(lipgloss.Top, model.components.deployments.View()))
 		s.WriteString("\n")
 	}
 
@@ -119,8 +129,8 @@ func (model *MainModel) componentsKeyEventHandle(msg tea.KeyMsg) tea.Cmd {
 	switch model.app.CurrentTab {
 	case shared.NamespacesTab:
 		_, cmd = model.components.namespaces.Update(msg)
-		// case shared.SettingsTab:
-		// 	_, cmd = a.components.settings.Update(msg)
+	case shared.DeploymentsTab:
+		_, cmd = model.components.deployments.Update(msg)
 	}
 
 	return cmd
