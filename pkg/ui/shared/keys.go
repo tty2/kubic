@@ -24,7 +24,7 @@ func (k KeyMap) ShortHelp() []key.Binding {
 
 func (k KeyMap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{
-		{k.Help, k.Quit, k.Tab},
+		{k.HelpShort, k.Quit, k.Tab},
 		{k.Up, k.Down, k.PrevPage, k.NextPage},
 	}
 }

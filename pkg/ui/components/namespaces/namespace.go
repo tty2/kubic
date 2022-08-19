@@ -8,6 +8,7 @@ import (
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/tty2/kubic/pkg/ui/shared/themes"
 )
 
 const (
@@ -28,6 +29,7 @@ type (
 		Status string
 		Age    string
 		Active bool
+		Styles *themes.Styles
 	}
 )
 
@@ -56,17 +58,17 @@ func (v *namespace) Render(w io.Writer, m list.Model, index int, listItem list.I
 		name = s.Name
 	}
 
-	sign := signInactiveStyle.Render(inactive)
+	sign := inactive
 	if s.Active {
-		sign = signActiveStyle.Render(active)
+		sign = v.Styles.NamespaceSign.Render(active)
 	}
 
 	var row strings.Builder
 	namespaceInfo := fmt.Sprintf("%s %s\t%s", name, s.Status, s.Age)
 	if index == m.Index() {
-		row.WriteString(fmt.Sprintf("%s %s", sign, selectedItem.Render(namespaceInfo)))
+		row.WriteString(fmt.Sprintf("%s %s", sign, v.Styles.SelectedText.Render(namespaceInfo)))
 	} else {
-		row.WriteString(fmt.Sprintf("%s %s", sign, normalItem.Render(namespaceInfo)))
+		row.WriteString(fmt.Sprintf("%s %s", sign, v.Styles.MainText.Render(namespaceInfo)))
 	}
 
 	fmt.Fprint(w, row.String())

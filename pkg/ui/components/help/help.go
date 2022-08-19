@@ -8,7 +8,6 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/tty2/kubic/pkg/ui/shared"
 	"github.com/tty2/kubic/pkg/ui/shared/elements/divider"
-	"github.com/tty2/kubic/pkg/ui/shared/themes"
 )
 
 const fullHelpHeigh = 2
@@ -21,13 +20,13 @@ type Model struct {
 func New(app *shared.App) *Model {
 	help := bbHelp.NewModel()
 	help.Styles = bbHelp.Styles{
-		ShortDesc:      helpTextStyle.Copy(),
-		FullDesc:       helpTextStyle.Copy(),
-		ShortSeparator: helpTextStyle.Copy(),
-		FullSeparator:  helpTextStyle.Copy(),
-		FullKey:        helpTextStyle.Copy(),
-		ShortKey:       helpTextStyle.Copy(),
-		Ellipsis:       helpTextStyle.Copy(),
+		ShortDesc:      app.Styles.InactiveText.Copy(),
+		FullDesc:       app.Styles.InactiveText.Copy(),
+		ShortSeparator: app.Styles.InactiveText.Copy(),
+		FullSeparator:  app.Styles.InactiveText.Copy(),
+		FullKey:        app.Styles.InactiveText.Copy(),
+		ShortKey:       app.Styles.InactiveText.Copy(),
+		Ellipsis:       app.Styles.InactiveText.Copy(),
 	}
 
 	return &Model{
@@ -59,7 +58,7 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m *Model) View() string {
 	var s strings.Builder
 	s.WriteString("\n")
-	s.WriteString(divider.HorizontalLine(m.app.GUI.ScreenWidth, themes.DefaultTheme.InactiveText))
+	s.WriteString(divider.HorizontalLine(m.app.GUI.ScreenWidth, m.app.Styles.InactiveText))
 	s.WriteString("\n")
 	if m.help.ShowAll {
 		s.WriteString(m.help.FullHelpView(m.app.KeyMap.FullHelp()))
@@ -68,5 +67,6 @@ func (m *Model) View() string {
 	}
 	m.help.Width = m.app.GUI.ScreenWidth
 
-	return helpStyle.Copy().Height(m.app.GUI.Areas.HelpBar.Height).Render(s.String())
+	return m.app.Styles.HelpBar.
+		Height(m.app.GUI.Areas.HelpBar.Height).Render(s.String())
 }

@@ -14,8 +14,9 @@ import (
 	"github.com/tty2/kubic/pkg/domain"
 	"github.com/tty2/kubic/pkg/ui/shared"
 	"github.com/tty2/kubic/pkg/ui/shared/elements/divider"
-	"github.com/tty2/kubic/pkg/ui/shared/themes"
 )
+
+const indent = 2
 
 type namespacesRepo interface {
 	GetNamespaces(ctx context.Context) ([]domain.Namespace, error)
@@ -33,7 +34,9 @@ func New(app *shared.App, repo namespacesRepo) (*Model, error) {
 		app:  app,
 	}
 
-	itemsModel := list.New([]list.Item{}, &namespace{}, 0, 0)
+	itemsModel := list.New([]list.Item{}, &namespace{
+		Styles: app.Styles,
+	}, 0, 0)
 	itemsModel.SetFilteringEnabled(false)
 	itemsModel.SetShowFilter(false)
 	itemsModel.SetShowTitle(false)
@@ -73,12 +76,12 @@ func (m *Model) View() string {
 		strings.Repeat(" ", shared.Max(len(minColumnGap),
 			m.app.GUI.ScreenWidth-lipgloss.Width(header)-lipgloss.Width(m.app.CurrentNamespace)-tableHeaderHorizontalMargin)),
 		m.app.CurrentNamespace)
-	s.WriteString(themes.MainDocStyle.Foreground(themes.DefaultTheme.InactiveText).Render(header))
+	s.WriteString(m.app.Styles.InactiveText.Render(header))
 	s.WriteString("\n")
-	s.WriteString(divider.HorizontalLine(m.app.GUI.ScreenWidth, themes.DefaultTheme.InactiveText))
+	s.WriteString(divider.HorizontalLine(m.app.GUI.ScreenWidth, m.app.Styles.InactiveText))
 	s.WriteString("\n")
 	m.list.SetHeight(m.app.GUI.Areas.MainContent.Height - tableHeaderHeight)
-	s.WriteString(listStyle.Render(m.list.View()))
+	s.WriteString(m.app.Styles.InitStyle.Copy().MarginRight(indent).PaddingRight(indent).Render(m.list.View()))
 
 	return s.String()
 }
