@@ -4,12 +4,12 @@ Package themes keeps default styles.
 package themes
 
 import (
+	"encoding/json"
 	"os"
 	"path/filepath"
 	"regexp"
 
 	"github.com/charmbracelet/lipgloss"
-	"github.com/tty2/kubic/pkg/css"
 )
 
 var validColor = regexp.MustCompile("^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$")
@@ -35,11 +35,11 @@ type Styles struct {
 
 // Theme is a struct to keep all the application styles.
 type Theme struct {
-	MainText      lipgloss.Color
-	SelectedText  lipgloss.Color
-	InactiveText  lipgloss.Color
-	Borders       lipgloss.Color
-	NamespaceSign lipgloss.Color
+	MainText      lipgloss.Color `json:"main-text"`
+	SelectedText  lipgloss.Color `json:"selected-text"`
+	InactiveText  lipgloss.Color `json:"inactive-text"`
+	Borders       lipgloss.Color `json:"tab-borders"`
+	NamespaceSign lipgloss.Color `json:"namespace-sign"`
 }
 
 // DefaultTheme is an application default theme.
@@ -117,43 +117,36 @@ func validHexColor(st string) bool {
 func InitTheme(ph string) Theme {
 	data, err := os.ReadFile(filepath.Clean(ph))
 	if err != nil {
-		initTheme(nil)
+		initTheme(Theme{})
 	}
 
-	styleSheet, err := css.Unmarshal(data)
+	th := Theme{}
+
+	err = json.Unmarshal(data, &th)
 	if err != nil {
-		initTheme(nil)
+		initTheme(Theme{})
 	}
 
-	return initTheme(styleSheet)
+	return initTheme(th)
 }
 
-func initTheme(styleSheet map[css.Selector]map[string]string) Theme {
+func initTheme(th Theme) Theme {
 	theme := defaultTheme
 
-	if styleSheet == nil {
-		return theme
+	if validHexColor(string(th.MainText)) {
+		theme.MainText = th.MainText
 	}
-
-	mainText := css.CSSStyle("color", styleSheet[".main-text"])
-	if validHexColor(mainText) {
-		theme.MainText = lipgloss.Color(mainText)
+	if validHexColor(string(th.SelectedText)) {
+		theme.SelectedText = th.SelectedText
 	}
-	selectedText := css.CSSStyle("color", styleSheet[".selected-text"])
-	if validHexColor(selectedText) {
-		theme.SelectedText = lipgloss.Color(selectedText)
+	if validHexColor(string(th.InactiveText)) {
+		theme.InactiveText = th.InactiveText
 	}
-	inactiveText := css.CSSStyle("color", styleSheet[".inactive-text"])
-	if validHexColor(inactiveText) {
-		theme.InactiveText = lipgloss.Color(inactiveText)
+	if validHexColor(string(th.Borders)) {
+		theme.Borders = th.Borders
 	}
-	borders := css.CSSStyle("color", styleSheet[".tab-borders"])
-	if validHexColor(borders) {
-		theme.Borders = lipgloss.Color(borders)
-	}
-	sign := css.CSSStyle("color", styleSheet[".namespace-sign"])
-	if validHexColor(sign) {
-		theme.NamespaceSign = lipgloss.Color(sign)
+	if validHexColor(string(th.NamespaceSign)) {
+		theme.NamespaceSign = th.NamespaceSign
 	}
 
 	return theme
