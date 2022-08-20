@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"strings"
+	"sync"
 
 	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/bubbles/paginator"
@@ -19,10 +20,18 @@ type deploymentsRepo interface {
 	GetDeployments(ctx context.Context, namespace string) ([]domain.Deployment, error)
 }
 
+// Model deployments.
+// Mutex is necessary here.
+// We must synchronize UpdateList function call and View function call on update namespaces.
+// In order to make user interface faster on update namespace we call update callbacks in another goroutine.
+// namespaces/model.go package Model.setActive() function has go m.app.OnUpdateNamespace()
+// If user switch tab faster than k8s makes call to update list, user will get outdated list.
+// Mutex helps us to wait for k8s response and update list before view.
 type Model struct {
 	app  *shared.App
 	list list.Model
 	repo deploymentsRepo
+	mu   sync.Mutex
 }
 
 func New(app *shared.App, repo deploymentsRepo) (*Model, error) {
@@ -78,12 +87,19 @@ func (m *Model) View() string {
 	s.WriteString(divider.HorizontalLine(m.app.GUI.ScreenWidth, m.app.Styles.InactiveText))
 	s.WriteString("\n")
 	m.list.SetHeight(m.app.GUI.Areas.MainContent.Height - tableHeaderHeight)
+
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
 	s.WriteString(m.app.Styles.InitStyle.Copy().MarginLeft(m.app.Styles.TextLeftMargin).Render(m.list.View()))
 
 	return s.String()
 }
 
 func (m *Model) UpdateList() {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
 	ns, err := m.repo.GetDeployments(context.Background(), m.app.CurrentNamespace)
 	if err != nil {
 		log.Fatalf("can't get deployments: %v", err)
