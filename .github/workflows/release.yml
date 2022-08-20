@@ -22,20 +22,20 @@ jobs:
         uses: goreleaser/goreleaser-action@v3
         with:
           version: latest
-          args: release -f .goreleaser-linux.yml --rm-dist
+          args: release -f .github/.goreleaser-linux.yml --rm-dist
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
       - name: build-darwin
         uses: goreleaser/goreleaser-action@v3
         with:
           version: latest
-          args: release -f .goreleaser-darwin.yml --rm-dist
+          args: release -f .github/.goreleaser-darwin.yml --rm-dist
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
       - name: build-win
         uses: goreleaser/goreleaser-action@v3
         with:
           version: latest
-          args: release -f .goreleaser-win.yml --rm-dist
+          args: release -f .github/.goreleaser-win.yml --rm-dist
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
