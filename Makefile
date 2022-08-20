@@ -14,9 +14,19 @@ build: ## Build binary.
 	@echo -e "\033[2m→ Building binary...\033[0m"
 	go build -o kubic main.go
 
+build-compress: ## Build with compression with upx.
+	@echo -e "\033[2m→ Building binary with compression...\033[0m"
+	go build -o kubic main.go
+	upx --brute kubic
+
 install: build ## Install binary to `/usr/local/bin` path.
 	@echo -e "\033[2m→ Installing binary to /usr/local/bin ...\033[0m"
 	mv kubic ~/.local/bin
+
+install-compress: build-compress ## Install binary to `/usr/local/bin` path.
+	@echo -e "\033[2m→ Installing binary to /usr/local/bin ...\033[0m"
+	mv kubic ~/.local/bin
+
 run: ## Run without building
 	@echo -e "\033[2m→ Running without building...\033[0m"
 	go run main.go
