@@ -16,14 +16,14 @@ const (
 	active            = "✔"
 	inactive          = " "
 	nameHeader        = "Name"
-	nameColumnLen     = 20
 	statusHeader      = "Status"
-	statusColumnLen   = 11 // the longest status `Terminating` + 1 gap
 	ageHeader         = "Age"
-	ateColumnLen      = 4
 	minColumnGap      = "  "
-	minGapLen         = len(minColumnGap)
+	nameColumnLen     = 20
+	statusColumnLen   = 11 // the longest status `Terminating`
+	ateColumnLen      = 4
 	tableHeaderHeight = 3
+	minGapLen         = len(minColumnGap)
 )
 
 type (
