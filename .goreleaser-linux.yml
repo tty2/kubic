@@ -20,8 +20,6 @@ builds:
     id: "kubic"
     dir: .
     main: .
-    # hooks:
-    #   post: 'upx --brute {{ .Path }}'
 
 archives:
   - format: tar.gz
