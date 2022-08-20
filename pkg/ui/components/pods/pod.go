@@ -23,7 +23,6 @@ const (
 	readyColumnLen    = 7
 	statusColumnLen   = 9 // the longest status `Succeeded`
 	restartsColumnLen = len(restartsHeader)
-	minGapLen         = len(minColumnGap)
 	tableHeaderHeight = 3
 )
 

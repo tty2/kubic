@@ -5,7 +5,7 @@ tui for k8s
 
 ## What is it.
 
-`kubic` is an tui k8s explorer. 
+`kubic` is a tui k8s explorer. 
 
 The idea is to free from the need to keep namespaces, deployments, pods names in memory.
 
@@ -13,7 +13,9 @@ It's a good replacement for kubectl or more precisely it's an additional tool th
 
 ## Features
 
-
+- doesn't require configuration for start, just kubernetes config
+- vim mappings + arrows for navigation
+- sweet design provided by `Charm` library
 
 
 ## UI screenshots
@@ -30,7 +32,7 @@ Different color scheme example.
 
 - kubernetes `config` file
 
-The best way is to keep it in `~/.kube/config` path. But you can set path on running from any path.
+The best way is to keep it in `~/.kube/config` path. But you can set path on running.
 
 ## Installation
 

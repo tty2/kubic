@@ -34,6 +34,7 @@ func run() error {
 	if err != nil {
 		return err
 	}
+
 	app := tea.NewProgram(
 		gui,
 		tea.WithAltScreen(),

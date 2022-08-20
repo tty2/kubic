@@ -106,6 +106,7 @@ func PodsLog(ctx context.Context, namespace, name string) ([]byte, error) {
 	return nil, nil
 }
 
+// nolint gomnd: numbers are obvious here
 func ageToString(age int64) string {
 	switch {
 	case age < 60:

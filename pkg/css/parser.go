@@ -24,14 +24,13 @@ const (
 	tokenFirstToken tokenType = iota - 1
 	tokenBlockStart
 	tokenBlockEnd
-	tokenRuleName
 	tokenValue
 	tokenSelector
 	tokenStyleSeparator
 	tokenStatementEnd
 )
 
-// Rule is a string type that represents a CSS rule.
+// Selector is a string type that represents a CSS rule.
 type Selector string
 
 type tokenEntry struct {
@@ -51,6 +50,7 @@ func (rule Selector) Type() string {
 	if strings.HasPrefix(string(rule), "#") {
 		return "id"
 	}
+
 	return "tag"
 }
 
@@ -58,6 +58,7 @@ func (e tokenEntry) typ() tokenType {
 	return newTokenType(e.value)
 }
 
+// nolint gocognit: not my implementation. not so important part on start TODO refactor
 func (t *tokenizer) next() (tokenEntry, error) {
 	token := t.s.Scan()
 	if token == scanner.EOF {
@@ -70,6 +71,7 @@ func (t *tokenizer) next() (tokenEntry, error) {
 			if ch == -1 || ch == '\n' || ch == '\t' || ch == ':' || ch == ';' {
 				return false
 			}
+
 			return true
 		}
 	} else {
@@ -77,9 +79,11 @@ func (t *tokenizer) next() (tokenEntry, error) {
 			if ch == -1 || ch == '.' || ch == '#' || ch == '\n' || ch == ' ' || ch == '\t' || ch == ':' || ch == ';' {
 				return false
 			}
+
 			return true
 		}
 	}
+
 	return tokenEntry{
 		value: value,
 		pos:   pos,
@@ -99,6 +103,7 @@ func (t tokenType) String() string {
 	case tokenSelector:
 		return "SELECTOR"
 	}
+
 	return "VALUE"
 }
 
@@ -122,6 +127,7 @@ func newTokenType(typ string) tokenType {
 func newTokenizer(r io.Reader) *tokenizer {
 	s := &scanner.Scanner{}
 	s.Init(r)
+
 	return &tokenizer{
 		s: s,
 	}
@@ -141,7 +147,7 @@ func buildList(r io.Reader) *list.List {
 	return l
 }
 
-// TODO: rules can be comma separated
+// nolint funlen: not my implementation. not so important part on start. TODO refactor
 func parse(l *list.List) (map[Selector]map[string]string, error) {
 
 	var (
