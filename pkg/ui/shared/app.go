@@ -5,12 +5,12 @@ import (
 )
 
 type App struct {
-	CurrentNamespace string
-	CurrentTab       TabItem
-	Styles           *themes.Styles
-	KeyMap           *KeyMap
-	GUI              GUI
-	callbacks        []func()
+	CurrentNamespace  string
+	CurrentTab        TabItem
+	Styles            *themes.Styles
+	KeyMap            *KeyMap
+	GUI               GUI
+	updateNScallbacks []func()
 }
 
 type GUI struct {
@@ -38,11 +38,11 @@ func (app *App) ResizeAreas() {
 }
 
 func (app *App) AddUpdateNamespaceCallback(fn func()) {
-	app.callbacks = append(app.callbacks, fn)
+	app.updateNScallbacks = append(app.updateNScallbacks, fn)
 }
 
 func (app *App) OnUpdateNamespace() {
-	for i := range app.callbacks {
-		app.callbacks[i]()
+	for i := range app.updateNScallbacks {
+		app.updateNScallbacks[i]()
 	}
 }
