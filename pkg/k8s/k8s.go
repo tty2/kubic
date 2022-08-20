@@ -115,10 +115,10 @@ func ageToString(age int64) string {
 		return fmt.Sprintf("%dm", age/60)
 	case age >= 3600 && age < 86400:
 		return fmt.Sprintf("%dh", age/60/60)
-	case age >= 86400 && age < 2592000:
+	case age >= 86400 && age < 2678400:
 		return fmt.Sprintf("%dd", age/60/60/24)
-	case age >= 2592000 && age < 31536000:
-		return fmt.Sprintf("%dM", age/60/60/24/30)
+	case age >= 2678400 && age < 31536000:
+		return fmt.Sprintf("%dM", age/60/60/24/31)
 	case age >= 31536000:
 		return fmt.Sprintf("%dY", age/60/60/24/365)
 	default:
