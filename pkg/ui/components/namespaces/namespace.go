@@ -78,12 +78,15 @@ func (n *namespace) Render(w io.Writer, m list.Model, index int, listItem list.I
 func getHeader() string {
 	var header strings.Builder
 	header.WriteString(minColumnGap)
+
 	header.WriteString(nameHeader)
 	header.WriteString(strings.Repeat(" ", nameColumnLen-len(nameHeader)))
 	header.WriteString(minColumnGap)
+
 	header.WriteString(statusHeader)
 	header.WriteString(strings.Repeat(" ", statusColumnLen-len(statusHeader)))
 	header.WriteString(minColumnGap)
+
 	header.WriteString(ageHeader)
 
 	return header.String()

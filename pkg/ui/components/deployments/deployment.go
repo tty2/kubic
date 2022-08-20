@@ -87,18 +87,23 @@ func (d *deployment) Render(w io.Writer, m list.Model, index int, listItem list.
 func getHeader() string {
 	var header strings.Builder
 	header.WriteString(minColumnGap)
+
 	header.WriteString(nameHeader)
 	header.WriteString(strings.Repeat(" ", nameColumnLen-len(nameHeader)))
 	header.WriteString(minColumnGap)
+
 	header.WriteString(readyHeader)
 	header.WriteString(strings.Repeat(" ", readyColumnLen-len(readyHeader)))
 	header.WriteString(minColumnGap)
+
 	header.WriteString(upToDateHeader)
 	header.WriteString(strings.Repeat(" ", upToDateColumnLen-len(upToDateHeader)))
 	header.WriteString(minColumnGap)
+
 	header.WriteString(availableHeader)
 	header.WriteString(strings.Repeat(" ", availableColumnLen-len(availableHeader)))
 	header.WriteString(minColumnGap)
+
 	header.WriteString(ageHeader)
 
 	return header.String()
