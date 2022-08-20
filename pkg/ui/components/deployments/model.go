@@ -3,7 +3,6 @@ package deployments
 import (
 	"context"
 	"fmt"
-	"log"
 	"strings"
 	"sync"
 
@@ -61,11 +60,6 @@ func (m *Model) Init() tea.Cmd {
 }
 
 func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	// if msg, ok := msg.(tea.KeyMsg); ok {
-	// 	if key.Matches(msg, m.app.KeyMap.Select) {
-	// 		m.setActive()
-	// 	}
-	// }
 	var cmd tea.Cmd
 	m.list, cmd = m.list.Update(msg)
 
@@ -102,7 +96,7 @@ func (m *Model) UpdateList() {
 
 	deps, err := m.repo.GetDeployments(context.Background(), m.app.CurrentNamespace)
 	if err != nil {
-		log.Fatalf("can't get deployments: %v", err)
+		return
 	}
 
 	items := make([]list.Item, len(deps))

@@ -23,7 +23,6 @@ const (
 	readyColumnLen     = 7
 	upToDateColumnLen  = len(upToDateHeader)
 	availableColumnLen = len(availableHeader)
-	minGapLen          = len(minColumnGap)
 	tableHeaderHeight  = 3
 )
 

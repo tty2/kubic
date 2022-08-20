@@ -19,14 +19,14 @@ type Config struct {
 	ThemePath      string `short:"t" long:"theme" env:"KUBIC_THEME_FILE_PATH" default:"./style.css" description:"theme file path"`
 }
 
-// LoadSearch sets ENV variables and returns all Config structure.
+// New creates a new config.
 func New() (Config, error) {
 	var config Config
 
 	parser := flags.NewParser(&config, flags.Default)
 	_, err := parser.Parse()
 	if err != nil {
-		return Config{}, fmt.Errorf("couldn't setup config: %v", err)
+		return Config{}, fmt.Errorf("couldn't setup config: %w", err)
 	}
 
 	if config.KubeConfigPath == "" {

@@ -98,6 +98,7 @@ func (m *Model) setActive() {
 			m.app.CurrentNamespace = s.Name
 
 			go m.app.OnUpdateNamespace()
+
 			continue
 		}
 		s.Active = false

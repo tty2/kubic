@@ -5,6 +5,7 @@ package themes
 
 import (
 	"os"
+	"path/filepath"
 	"regexp"
 
 	"github.com/charmbracelet/lipgloss"
@@ -75,6 +76,7 @@ var (
 	}
 )
 
+// nolint gomnd: default values
 func GetStyle(theme Theme) Styles {
 	return Styles{
 		MainText:     lipgloss.NewStyle().Foreground(theme.MainText),
@@ -109,16 +111,16 @@ func GetStyle(theme Theme) Styles {
 }
 
 func validHexColor(st string) bool {
-	return validColor.Match([]byte(st))
+	return validColor.MatchString(st)
 }
 
 func InitTheme(ph string) Theme {
-	data, err := os.ReadFile(ph)
+	data, err := os.ReadFile(filepath.Clean(ph))
 	if err != nil {
 		initTheme(nil)
 	}
 
-	styleSheet, err := css.Unmarshal([]byte(data))
+	styleSheet, err := css.Unmarshal(data)
 	if err != nil {
 		initTheme(nil)
 	}

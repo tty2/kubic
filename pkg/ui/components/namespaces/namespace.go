@@ -21,7 +21,6 @@ const (
 	minColumnGap      = "  "
 	nameColumnLen     = 20
 	statusColumnLen   = 11 // the longest status `Terminating`
-	minGapLen         = len(minColumnGap)
 	tableHeaderHeight = 3
 )
 
