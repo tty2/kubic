@@ -15,7 +15,7 @@ It's a good replacement for kubectl or more precisely it's an additional tool th
 
 - doesn't require configuration for start, just kubernetes config
 - vim mappings + arrows for navigation
-- sweet design provided by `Charm` library
+- simple, sweet design powered by [Charm](https://charm.sh) libraries
 
 
 ## UI screenshots
@@ -41,7 +41,7 @@ The best way is to keep it in `~/.kube/config` path. But you can set path on run
 
 ```shell
 chmod +x kubic
-sudo mv kubic ~/.local/bin
+mv kubic ~/.local/bin
 ```
 
 ## Run
