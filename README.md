@@ -64,12 +64,12 @@ kubic -c /path/to/the/config/file
 
 3. With custom color scheme.
 
-If you want's to use different color scheme, put `style.css` in the same directory with `kubic` binary and run `kubic` without additional parameters. `kubic` will use this file automatically.
+If you want's to use different color scheme, put `style.json` in the same directory with `kubic` binary and run `kubic` without additional parameters. `kubic` will use this file automatically.
 
-You can set path path to your css file with `--theme` parameter (short way `-t`) or with environment variable `KUBIC_THEME_FILE_PATH`.
+You can set path path to your json file with `--theme` parameter (short way `-t`) or with environment variable `KUBIC_THEME_FILE_PATH`.
 
 ```shell
-kubic -t /path/to/the/css/style/file
+kubic -t /path/to/the/json/style/file
 ```
 
 Flags list:
@@ -82,31 +82,19 @@ Flags list:
 
 ## Customization
 
-You can set your own color scheme with css file.
+You can set your own color scheme with json file.
 
-[Example](./assets/style.css)
+[Example](./assets/style.json)
 
 Classes are predefined. Set your own color with hex.
 
-```css
-.main-text {
-    color: #ffffff;
-}
-
-.selected-text {
-    color: #61b0de;
-}
-
-.inactive-text {
-    color: #616363
-}
-
-.tab-borders {
-    color: #109f93;
-}
-
-.namespace-sign {
-    color: #eb24a9;
+```json
+{
+    "main-text": "#ffffff",
+    "selected-text": "#61b0de",
+    "inactive-text": "#616363",
+    "tab-borders": "#109f93",
+    "namespace-sign": "#eb24a9"
 }
 ```
 

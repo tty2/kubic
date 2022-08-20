@@ -16,7 +16,7 @@ import (
 // nolint lll // we need all of tags here. If we add CR here we'll catch structtag: *** key:"value" pairs not separated by spaces (govet)
 type Config struct {
 	KubeConfigPath string `short:"c" long:"config" env:"KUBIC_KUBERNETES_CONFIG_PATH" description:"kubernetes config file path"`
-	ThemePath      string `short:"t" long:"theme" env:"KUBIC_THEME_FILE_PATH" default:"./style.css" description:"theme file path"`
+	ThemePath      string `short:"t" long:"theme" env:"KUBIC_THEME_FILE_PATH" default:"./style.json" description:"theme file path"`
 }
 
 // New creates a new config.
