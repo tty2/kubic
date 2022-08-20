@@ -7,7 +7,7 @@ tui for k8s
 
 `kubic` is a tui k8s explorer. 
 
-The idea is to free from the need to keep namespaces, deployments, pods names in your brain.
+The idea is to free from the need to keep namespaces, deployments, pods names in your head.
 
 It's a good replacement for kubectl or more precisely it's an additional tool that takes over the most of work.
 
