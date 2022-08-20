@@ -149,7 +149,7 @@ func initTheme(styleSheet map[css.Selector]map[string]string) Theme {
 	if validHexColor(borders) {
 		theme.Borders = lipgloss.Color(borders)
 	}
-	sign := css.CSSStyle("color", styleSheet[".namespace-sing"])
+	sign := css.CSSStyle("color", styleSheet[".namespace-sign"])
 	if validHexColor(sign) {
 		theme.NamespaceSign = lipgloss.Color(sign)
 	}
