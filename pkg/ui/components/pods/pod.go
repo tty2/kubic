@@ -13,13 +13,17 @@ import (
 )
 
 const (
-	podNameColumn     = "Name"
-	podReadyColumn    = "Ready"
-	podStatusColumn   = "Status"
-	podRestartsColumn = "Restarts"
-	podAgeColumn      = "Age"
+	nameHeader        = "Name"
+	readyHeader       = "Ready"
+	statusHeader      = "Status"
+	restartsHeader    = "Restarts"
+	ageHeader         = "Age"
 	minColumnGap      = "  "
 	nameColumnLen     = 20
+	readyColumnLen    = 7
+	statusColumnLen   = 9 // the longest status `Succeeded`
+	restartsColumnLen = len(restartsHeader)
+	minGapLen         = len(minColumnGap)
 	tableHeaderHeight = 3
 )
 
@@ -53,21 +57,20 @@ func (p *pod) Render(w io.Writer, m list.Model, index int, listItem list.Item) {
 
 	var row strings.Builder
 	row.WriteString(name)
-	row.WriteString(" ")
+	row.WriteString(minColumnGap)
 
-	ready := fmt.Sprintf("%s%s", s.Ready, minColumnGap)
-	row.WriteString(ready)
-	row.WriteString(strings.Repeat(" ", lipgloss.Width(podReadyColumn)+len(minColumnGap)-lipgloss.Width(ready)))
+	row.WriteString(s.Ready)
+	row.WriteString(strings.Repeat(" ", readyColumnLen-lipgloss.Width(s.Ready)))
+	row.WriteString(minColumnGap)
 
-	status := fmt.Sprintf("%s%s", s.Status, minColumnGap)
-	row.WriteString(status)
-	// +3 is alignment: longest `Succeeded` status is 3 symbols longer than `Status` header
-	// TODO: find a better solution
-	row.WriteString(strings.Repeat(" ", lipgloss.Width(podStatusColumn)+len(minColumnGap)+3-lipgloss.Width(status)))
+	row.WriteString(s.Status)
+	row.WriteString(strings.Repeat(" ", statusColumnLen-lipgloss.Width(s.Status)))
+	row.WriteString(minColumnGap)
 
-	restarts := fmt.Sprintf("%d%s", s.Restarts, minColumnGap)
+	restarts := fmt.Sprintf("%d", s.Restarts)
 	row.WriteString(restarts)
-	row.WriteString(strings.Repeat(" ", lipgloss.Width(podRestartsColumn)+len(minColumnGap)-lipgloss.Width(restarts)))
+	row.WriteString(strings.Repeat(" ", restartsColumnLen-lipgloss.Width(restarts)))
+	row.WriteString(minColumnGap)
 
 	row.WriteString(s.Age)
 
@@ -83,17 +86,24 @@ func (p *pod) Render(w io.Writer, m list.Model, index int, listItem list.Item) {
 func getHeader() string {
 	var header strings.Builder
 	header.WriteString(minColumnGap)
-	header.WriteString(podNameColumn)
-	header.WriteString(strings.Repeat(" ", nameColumnLen-len(podNameColumn)+len(minColumnGap)-1))
-	header.WriteString(podReadyColumn)
+
+	header.WriteString(nameHeader)
+	header.WriteString(strings.Repeat(" ", nameColumnLen-len(nameHeader)))
 	header.WriteString(minColumnGap)
-	// alignment: the longest `Succeeded` status is 3 symbols longer than `Status` header
-	// TODO: find a better solution
-	header.WriteString(fmt.Sprintf("%s   ", podStatusColumn))
+
+	header.WriteString(readyHeader)
+	header.WriteString(strings.Repeat(" ", readyColumnLen-len(readyHeader)))
 	header.WriteString(minColumnGap)
-	header.WriteString(podRestartsColumn)
+
+	header.WriteString(statusHeader)
+	header.WriteString(strings.Repeat(" ", statusColumnLen-len(statusHeader)))
 	header.WriteString(minColumnGap)
-	header.WriteString(podAgeColumn)
+
+	header.WriteString(restartsHeader)
+	header.WriteString(strings.Repeat(" ", restartsColumnLen-len(restartsHeader)))
+	header.WriteString(minColumnGap)
+
+	header.WriteString(ageHeader)
 
 	return header.String()
 }

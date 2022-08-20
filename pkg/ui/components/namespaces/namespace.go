@@ -13,14 +13,16 @@ import (
 )
 
 const (
-	active                = "✔"
-	inactive              = " "
-	namespaceNameColumn   = "Name"
-	namespaceStatusColumn = "Status"
-	namespaceAgeColumn    = "Age"
-	minColumnGap          = "  "
-	nameColumnLen         = 20
-	tableHeaderHeight     = 3
+	active            = "✔"
+	inactive          = " "
+	nameHeader        = "Name"
+	statusHeader      = "Status"
+	ageHeader         = "Age"
+	minColumnGap      = "  "
+	nameColumnLen     = 20
+	statusColumnLen   = 11 // the longest status `Terminating`
+	minGapLen         = len(minColumnGap)
+	tableHeaderHeight = 3
 )
 
 type (
@@ -56,18 +58,13 @@ func (n *namespace) Render(w io.Writer, m list.Model, index int, listItem list.I
 
 	var row strings.Builder
 	row.WriteString(name)
-	row.WriteString(" ")
+	row.WriteString(minColumnGap)
 
-	status := fmt.Sprintf("%s%s", s.Status, minColumnGap)
-	row.WriteString(status)
-	// +3 is alignment: longest `Succeeded` status is 3 symbols longer than `Status` header
-	// TODO: find a better solution
-	row.WriteString(strings.Repeat(" ",
-		lipgloss.Width(namespaceStatusColumn)+len(minColumnGap)+5-lipgloss.Width(status)))
+	row.WriteString(s.Status)
+	row.WriteString(strings.Repeat(" ", statusColumnLen-lipgloss.Width(s.Status)))
+	row.WriteString(minColumnGap)
 
-	age := fmt.Sprintf("%s%s", s.Age, minColumnGap)
-	row.WriteString(age)
-	row.WriteString(strings.Repeat(" ", lipgloss.Width(namespaceAgeColumn)+len(minColumnGap)-lipgloss.Width(age)))
+	row.WriteString(s.Age)
 
 	rowInfo := row.String()
 
@@ -81,13 +78,16 @@ func (n *namespace) Render(w io.Writer, m list.Model, index int, listItem list.I
 func getHeader() string {
 	var header strings.Builder
 	header.WriteString(minColumnGap)
-	header.WriteString(namespaceNameColumn)
-	header.WriteString(strings.Repeat(" ", nameColumnLen-len(namespaceNameColumn)+len(minColumnGap)-1))
-	// alignment: the longest `Terminating` status is 5 symbols longer than `Status` header
-	// TODO: find a better solution
-	header.WriteString(fmt.Sprintf("%s     ", namespaceStatusColumn))
+
+	header.WriteString(nameHeader)
+	header.WriteString(strings.Repeat(" ", nameColumnLen-len(nameHeader)))
 	header.WriteString(minColumnGap)
-	header.WriteString(namespaceAgeColumn)
+
+	header.WriteString(statusHeader)
+	header.WriteString(strings.Repeat(" ", statusColumnLen-len(statusHeader)))
+	header.WriteString(minColumnGap)
+
+	header.WriteString(ageHeader)
 
 	return header.String()
 }
