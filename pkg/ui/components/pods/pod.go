@@ -62,6 +62,7 @@ func (p *pod) Render(w io.Writer, m list.Model, index int, listItem list.Item) {
 	status := fmt.Sprintf("%s%s", s.Status, minColumnGap)
 	row.WriteString(status)
 	// +1 is alignment: `Running` status is shorter than `Status` header
+	// TODO: find a better solution
 	row.WriteString(strings.Repeat(" ", lipgloss.Width(podStatusColumn)+len(minColumnGap)+1-lipgloss.Width(status)))
 
 	restarts := fmt.Sprintf("%d%s", s.Restarts, minColumnGap)
@@ -86,6 +87,7 @@ func getHeader() string {
 	header.WriteString(strings.Repeat(" ", nameColumnLen-len(podNameColumn)+len(minColumnGap)-1))
 	header.WriteString(podReadyColumn)
 	header.WriteString(minColumnGap)
+	// TODO: find a better solution
 	header.WriteString(fmt.Sprintf("%s ", podStatusColumn)) // alignment: `Running` status is shorter than `Status` header
 	header.WriteString(minColumnGap)
 	header.WriteString(podRestartsColumn)
