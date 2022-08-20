@@ -36,12 +36,32 @@ The best way is to keep it in `~/.kube/config` path. But you can set path on run
 
 ## Installation
 
+1. From releases
 - Download archive from Releases
 - Extract archive
 
 ```shell
 chmod +x kubic
 mv kubic ~/.local/bin
+```
+
+2. Build manually
+
+```shell
+git clone git@github.com:tty2/kubic.git
+cd kubic
+```
+```shell
+go build -o kubic main.go
+```
+or
+```shell
+make build
+```
+or with compression. `upx` tool must be installed. It takes time but squeeze file ~4 times. 
+
+```shell
+make build-compress
 ```
 
 ## Run
