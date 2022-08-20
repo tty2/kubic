@@ -1,4 +1,4 @@
-package deployments
+package pods
 
 import (
 	"context"
@@ -16,11 +16,11 @@ import (
 	"github.com/tty2/kubic/pkg/ui/shared/elements/divider"
 )
 
-type deploymentsRepo interface {
-	GetDeployments(ctx context.Context, namespace string) ([]domain.Deployment, error)
+type podsRepo interface {
+	GetPods(ctx context.Context, namespace string) ([]domain.Pod, error)
 }
 
-// Model for deployments.
+// Model for pods.
 // Mutex is necessary here.
 // We must synchronize UpdateList function call and View function call on update namespaces.
 // In order to make user interface faster on update namespace we call update callbacks in another goroutine.
@@ -30,17 +30,17 @@ type deploymentsRepo interface {
 type Model struct {
 	app  *shared.App
 	list list.Model
-	repo deploymentsRepo
+	repo podsRepo
 	mu   sync.Mutex
 }
 
-func New(app *shared.App, repo deploymentsRepo) (*Model, error) {
+func New(app *shared.App, repo podsRepo) (*Model, error) {
 	m := Model{
 		repo: repo,
 		app:  app,
 	}
 
-	itemsModel := list.New([]list.Item{}, &deployment{
+	itemsModel := list.New([]list.Item{}, &pod{
 		Styles: app.Styles,
 	}, 0, 0)
 	itemsModel.SetFilteringEnabled(false)
@@ -100,20 +100,20 @@ func (m *Model) UpdateList() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
-	deps, err := m.repo.GetDeployments(context.Background(), m.app.CurrentNamespace)
+	pods, err := m.repo.GetPods(context.Background(), m.app.CurrentNamespace)
 	if err != nil {
 		log.Fatalf("can't get deployments: %v", err)
 	}
 
-	items := make([]list.Item, len(deps))
-	for i := range deps {
-		items[i] = &deployment{
-			Name:      deps[i].Name,
-			Ready:     deps[i].Ready,
-			UpToDate:  deps[i].UpToDate,
-			Available: deps[i].Available,
-			Labels:    deps[i].Labels,
-			Age:       deps[i].Age,
+	items := make([]list.Item, len(pods))
+	for i := range pods {
+		items[i] = &pod{
+			Name:     pods[i].Name,
+			Ready:    pods[i].Ready,
+			Status:   pods[i].Status,
+			Restarts: pods[i].Restarts,
+			Labels:   pods[i].Labels,
+			Age:      pods[i].Age,
 		}
 	}
 

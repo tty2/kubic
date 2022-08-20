@@ -11,6 +11,7 @@ import (
 	"github.com/tty2/kubic/pkg/ui/components/deployments"
 	"github.com/tty2/kubic/pkg/ui/components/help"
 	"github.com/tty2/kubic/pkg/ui/components/namespaces"
+	"github.com/tty2/kubic/pkg/ui/components/pods"
 	"github.com/tty2/kubic/pkg/ui/components/tabs"
 	"github.com/tty2/kubic/pkg/ui/shared"
 	"github.com/tty2/kubic/pkg/ui/shared/themes"
@@ -21,8 +22,8 @@ type components struct {
 	tabs        tea.Model
 	namespaces  tea.Model
 	deployments tea.Model
-	// pods        tea.Model
-	help tea.Model
+	pods        tea.Model
+	help        tea.Model
 }
 
 type MainModel struct {
@@ -51,6 +52,12 @@ func New(k8sClient *k8s.Client, theme themes.Theme) (tea.Model, error) {
 		return nil, err
 	}
 	model.components.deployments = dep
+
+	pod, err := pods.New(app, k8sClient)
+	if err != nil {
+		return nil, err
+	}
+	model.components.pods = pod
 
 	model.app.GUI.ScreenWidth, model.app.GUI.ScreenHeight, err = term.GetSize(int(os.Stdout.Fd()))
 	if err != nil {
@@ -97,6 +104,9 @@ func (model *MainModel) View() string {
 	case shared.DeploymentsTab:
 		s.WriteString(lipgloss.JoinHorizontal(lipgloss.Top, model.components.deployments.View()))
 		s.WriteString("\n")
+	case shared.PodsTab:
+		s.WriteString(lipgloss.JoinHorizontal(lipgloss.Top, model.components.pods.View()))
+		s.WriteString("\n")
 	}
 
 	// help
@@ -131,6 +141,8 @@ func (model *MainModel) componentsKeyEventHandle(msg tea.KeyMsg) tea.Cmd {
 		_, cmd = model.components.namespaces.Update(msg)
 	case shared.DeploymentsTab:
 		_, cmd = model.components.deployments.Update(msg)
+	case shared.PodsTab:
+		_, cmd = model.components.pods.Update(msg)
 	}
 
 	return cmd
