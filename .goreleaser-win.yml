@@ -13,15 +13,9 @@ builds:
       - -X main.gitVersion={{.Tag}}
       - -X main.gitHash={{.ShortCommit}}
     goos:
-      - linux
-      - darwin
       - windows
     goarch:
       - amd64
-      - arm64
-    ignore:
-      - goos: windows
-        goarch: arm64
     id: "kubic"
     dir: .
     main: .

@@ -18,10 +18,24 @@ jobs:
           go-version: ^1.19
           check-latest: true
           cache: true
-      - name: build
+      - name: build-linux
         uses: goreleaser/goreleaser-action@v3
         with:
           version: latest
-          args: release -f .goreleaser.yml --rm-dist
+          args: release -f .goreleaser-linux.yml --rm-dist
+        env:
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+      - name: build-darwin
+        uses: goreleaser/goreleaser-action@v3
+        with:
+          version: latest
+          args: release -f .goreleaser-darwin.yml --rm-dist
+        env:
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+      - name: build-win
+        uses: goreleaser/goreleaser-action@v3
+        with:
+          version: latest
+          args: release -f .goreleaser-win.yml --rm-dist
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
