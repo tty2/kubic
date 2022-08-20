@@ -1,4 +1,4 @@
-package deployments
+package pods
 
 import (
 	"context"
@@ -16,11 +16,11 @@ import (
 	"github.com/tty2/kubic/pkg/ui/shared/elements/divider"
 )
 
-type deploymentsRepo interface {
-	GetDeployments(ctx context.Context, namespace string) ([]domain.Deployment, error)
+type podsRepo interface {
+	GetPods(ctx context.Context, namespace string) ([]domain.Pod, error)
 }
 
-// Model for deployments.
+// Model for pods.
 // Mutex is necessary here.
 // We must synchronize UpdateList function call and View function call on update namespaces.
 // In order to make user interface faster on update namespace we call update callbacks in another goroutine.
@@ -30,17 +30,17 @@ type deploymentsRepo interface {
 type Model struct {
 	app  *shared.App
 	list list.Model
-	repo deploymentsRepo
+	repo podsRepo
 	mu   sync.Mutex
 }
 
-func New(app *shared.App, repo deploymentsRepo) (*Model, error) {
+func New(app *shared.App, repo podsRepo) (*Model, error) {
 	m := Model{
 		repo: repo,
 		app:  app,
 	}
 
-	itemsModel := list.New([]list.Item{}, &deployment{
+	itemsModel := list.New([]list.Item{}, &pod{
 		Styles: app.Styles,
 	}, 0, 0)
 	itemsModel.SetFilteringEnabled(false)
@@ -100,22 +100,22 @@ func (m *Model) UpdateList() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
-	deps, err := m.repo.GetDeployments(context.Background(), m.app.CurrentNamespace)
+	ns, err := m.repo.GetPods(context.Background(), m.app.CurrentNamespace)
 	if err != nil {
 		log.Fatalf("can't get deployments: %v", err)
 	}
 
-	items := make([]list.Item, len(deps))
-	for i := range deps {
-		dep := deployment{
-			Name:      deps[i].Name,
-			Ready:     deps[i].Ready,
-			UpToDate:  deps[i].UpToDate,
-			Available: deps[i].Available,
-			Labels:    deps[i].Labels,
-			Age:       deps[i].Age,
+	items := make([]list.Item, len(ns))
+	for i := range ns {
+		n := pod{
+			Name:     ns[i].Name,
+			Ready:    ns[i].Ready,
+			Status:   ns[i].Status,
+			Restarts: ns[i].Restarts,
+			Labels:   ns[i].Labels,
+			Age:      ns[i].Age,
 		}
-		items[i] = &dep
+		items[i] = &n
 	}
 
 	m.list.SetItems(items)

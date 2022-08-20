@@ -36,14 +36,14 @@ type (
 )
 
 // FilterValue is used to set filter item and required for `list.Model` interface.
-func (v *deployment) FilterValue() string { return v.Name }
-func (v *deployment) Height() int         { return 1 }
-func (v *deployment) Spacing() int        { return 1 }
-func (v *deployment) Update(msg tea.Msg, m *list.Model) tea.Cmd {
+func (d *deployment) FilterValue() string { return d.Name }
+func (d *deployment) Height() int         { return 1 }
+func (d *deployment) Spacing() int        { return 1 }
+func (d *deployment) Update(msg tea.Msg, m *list.Model) tea.Cmd {
 	return nil
 }
 
-func (v *deployment) Render(w io.Writer, m list.Model, index int, listItem list.Item) {
+func (d *deployment) Render(w io.Writer, m list.Model, index int, listItem list.Item) {
 	s, ok := listItem.(*deployment)
 	if !ok {
 		return
@@ -72,9 +72,9 @@ func (v *deployment) Render(w io.Writer, m list.Model, index int, listItem list.
 	deploymentInfo := row.String()
 
 	if index == m.Index() {
-		fmt.Fprint(w, v.Styles.SelectedText.Render(deploymentInfo))
+		fmt.Fprint(w, d.Styles.SelectedText.Render(deploymentInfo))
 	} else {
-		fmt.Fprint(w, v.Styles.MainText.Render(deploymentInfo))
+		fmt.Fprint(w, d.Styles.MainText.Render(deploymentInfo))
 	}
 }
 
