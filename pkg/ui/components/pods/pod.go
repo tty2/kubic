@@ -15,7 +15,7 @@ import (
 const (
 	podNameColumn     = "Name"
 	podReadyColumn    = "Ready"
-	podStatusColumn   = "Status "
+	podStatusColumn   = "Status"
 	podRestartsColumn = "Restarts"
 	podAgeColumn      = "Age"
 	minColumnGap      = "  "
@@ -57,15 +57,16 @@ func (p *pod) Render(w io.Writer, m list.Model, index int, listItem list.Item) {
 
 	ready := fmt.Sprintf("%s%s", s.Ready, minColumnGap)
 	row.WriteString(ready)
-	row.WriteString(strings.Repeat(" ", lipgloss.Width(podReadyColumn)+2-lipgloss.Width(ready)))
+	row.WriteString(strings.Repeat(" ", lipgloss.Width(podReadyColumn)+len(minColumnGap)-lipgloss.Width(ready)))
 
 	status := fmt.Sprintf("%s%s", s.Status, minColumnGap)
 	row.WriteString(status)
-	row.WriteString(strings.Repeat(" ", lipgloss.Width(podStatusColumn)+2-lipgloss.Width(status)))
+	// +1 is alignment: `Running` status is shorter than `Status` header
+	row.WriteString(strings.Repeat(" ", lipgloss.Width(podStatusColumn)+len(minColumnGap)+1-lipgloss.Width(status)))
 
 	restarts := fmt.Sprintf("%d%s", s.Restarts, minColumnGap)
 	row.WriteString(restarts)
-	row.WriteString(strings.Repeat(" ", lipgloss.Width(podRestartsColumn)+2-lipgloss.Width(restarts)))
+	row.WriteString(strings.Repeat(" ", lipgloss.Width(podRestartsColumn)+len(minColumnGap)-lipgloss.Width(restarts)))
 
 	row.WriteString(s.Age)
 
@@ -85,7 +86,7 @@ func getHeader() string {
 	header.WriteString(strings.Repeat(" ", nameColumnLen-len(podNameColumn)+len(minColumnGap)-1))
 	header.WriteString(podReadyColumn)
 	header.WriteString(minColumnGap)
-	header.WriteString(podStatusColumn)
+	header.WriteString(fmt.Sprintf("%s ", podStatusColumn)) // alignment: `Running` status is shorter than `Status` header
 	header.WriteString(minColumnGap)
 	header.WriteString(podRestartsColumn)
 	header.WriteString(minColumnGap)
