@@ -107,7 +107,7 @@ func (m *Model) UpdateList() {
 
 	items := make([]list.Item, len(deps))
 	for i := range deps {
-		dep := deployment{
+		items[i] = &deployment{
 			Name:      deps[i].Name,
 			Ready:     deps[i].Ready,
 			UpToDate:  deps[i].UpToDate,
@@ -115,7 +115,6 @@ func (m *Model) UpdateList() {
 			Labels:    deps[i].Labels,
 			Age:       deps[i].Age,
 		}
-		items[i] = &dep
 	}
 
 	m.list.SetItems(items)

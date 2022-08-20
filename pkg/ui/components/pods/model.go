@@ -100,22 +100,21 @@ func (m *Model) UpdateList() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
-	ns, err := m.repo.GetPods(context.Background(), m.app.CurrentNamespace)
+	pods, err := m.repo.GetPods(context.Background(), m.app.CurrentNamespace)
 	if err != nil {
 		log.Fatalf("can't get deployments: %v", err)
 	}
 
-	items := make([]list.Item, len(ns))
-	for i := range ns {
-		n := pod{
-			Name:     ns[i].Name,
-			Ready:    ns[i].Ready,
-			Status:   ns[i].Status,
-			Restarts: ns[i].Restarts,
-			Labels:   ns[i].Labels,
-			Age:      ns[i].Age,
+	items := make([]list.Item, len(pods))
+	for i := range pods {
+		items[i] = &pod{
+			Name:     pods[i].Name,
+			Ready:    pods[i].Ready,
+			Status:   pods[i].Status,
+			Restarts: pods[i].Restarts,
+			Labels:   pods[i].Labels,
+			Age:      pods[i].Age,
 		}
-		items[i] = &n
 	}
 
 	m.list.SetItems(items)
