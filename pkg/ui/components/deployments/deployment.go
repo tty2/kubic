@@ -13,14 +13,18 @@ import (
 )
 
 const (
-	deploymentNameColumn      = "Name"
-	deploymentReadyColumn     = "Ready"
-	deploymentUpToDateColumn  = "UpToDate"
-	deploymentAvailableColumn = "Available"
-	deploymentAgeColumn       = "Age"
-	minColumnGap              = "  "
-	nameColumnLen             = 20
-	tableHeaderHeight         = 3
+	nameHeader         = "Name"
+	readyHeader        = "Ready"
+	upToDateHeader     = "UpToDate"
+	availableHeader    = "Available"
+	ageHeader          = "Age"
+	minColumnGap       = "  "
+	nameColumnLen      = 20
+	readyColumnLen     = 7
+	upToDateColumnLen  = len(upToDateHeader)
+	availableColumnLen = len(availableHeader)
+	minGapLen          = len(minColumnGap)
+	tableHeaderHeight  = 3
 )
 
 type (
@@ -53,19 +57,21 @@ func (d *deployment) Render(w io.Writer, m list.Model, index int, listItem list.
 
 	var row strings.Builder
 	row.WriteString(name)
-	row.WriteString(" ")
+	row.WriteString(minColumnGap)
 
-	ready := fmt.Sprintf("%s%s", s.Ready, minColumnGap)
-	row.WriteString(ready)
-	row.WriteString(strings.Repeat(" ", lipgloss.Width(deploymentReadyColumn)+2-lipgloss.Width(ready)))
+	row.WriteString(s.Ready)
+	row.WriteString(strings.Repeat(" ", readyColumnLen-lipgloss.Width(s.Ready)))
+	row.WriteString(minColumnGap)
 
-	upToDate := fmt.Sprintf("%d%s", s.UpToDate, minColumnGap)
+	upToDate := fmt.Sprintf("%d", s.UpToDate)
 	row.WriteString(upToDate)
-	row.WriteString(strings.Repeat(" ", lipgloss.Width(deploymentUpToDateColumn)+2-lipgloss.Width(upToDate)))
+	row.WriteString(strings.Repeat(" ", upToDateColumnLen-lipgloss.Width(upToDate)))
+	row.WriteString(minColumnGap)
 
-	available := fmt.Sprintf("%d%s", s.Available, minColumnGap)
+	available := fmt.Sprintf("%d", s.Available)
 	row.WriteString(available)
-	row.WriteString(strings.Repeat(" ", lipgloss.Width(deploymentAvailableColumn)+2-lipgloss.Width(available)))
+	row.WriteString(strings.Repeat(" ", availableColumnLen-lipgloss.Width(available)))
+	row.WriteString(minColumnGap)
 
 	row.WriteString(s.Age)
 
@@ -81,15 +87,19 @@ func (d *deployment) Render(w io.Writer, m list.Model, index int, listItem list.
 func getHeader() string {
 	var header strings.Builder
 	header.WriteString(minColumnGap)
-	header.WriteString(deploymentNameColumn)
-	header.WriteString(strings.Repeat(" ", nameColumnLen-len(deploymentNameColumn)+len(minColumnGap)-1))
-	header.WriteString(deploymentReadyColumn)
+	header.WriteString(nameHeader)
+	header.WriteString(strings.Repeat(" ", nameColumnLen-len(nameHeader)))
 	header.WriteString(minColumnGap)
-	header.WriteString(deploymentUpToDateColumn)
+	header.WriteString(readyHeader)
+	header.WriteString(strings.Repeat(" ", readyColumnLen-len(readyHeader)))
 	header.WriteString(minColumnGap)
-	header.WriteString(deploymentAvailableColumn)
+	header.WriteString(upToDateHeader)
+	header.WriteString(strings.Repeat(" ", upToDateColumnLen-len(upToDateHeader)))
 	header.WriteString(minColumnGap)
-	header.WriteString(deploymentAgeColumn)
+	header.WriteString(availableHeader)
+	header.WriteString(strings.Repeat(" ", availableColumnLen-len(availableHeader)))
+	header.WriteString(minColumnGap)
+	header.WriteString(ageHeader)
 
 	return header.String()
 }

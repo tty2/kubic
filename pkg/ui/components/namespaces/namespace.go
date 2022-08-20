@@ -21,9 +21,8 @@ const (
 	minColumnGap      = "  "
 	nameColumnLen     = 20
 	statusColumnLen   = 11 // the longest status `Terminating`
-	ateColumnLen      = 4
-	tableHeaderHeight = 3
 	minGapLen         = len(minColumnGap)
+	tableHeaderHeight = 3
 )
 
 type (
@@ -62,7 +61,7 @@ func (n *namespace) Render(w io.Writer, m list.Model, index int, listItem list.I
 	row.WriteString(minColumnGap)
 
 	row.WriteString(s.Status)
-	row.WriteString(strings.Repeat(" ", statusColumnLen-lipgloss.Width(statusHeader)))
+	row.WriteString(strings.Repeat(" ", statusColumnLen-lipgloss.Width(s.Status)))
 	row.WriteString(minColumnGap)
 
 	row.WriteString(s.Age)
