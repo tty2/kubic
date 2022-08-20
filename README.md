@@ -16,12 +16,15 @@ It's a good replacement for kubectl or more precisely it's an additional tool th
 
 
 
-## UI
+## UI screenshots
 
 <img src="assets/namespaces.png" width="700">
-<img src="assets/theme.png" width="700">
 <img src="assets/deployments.png" width="700">
 <img src="assets/pods.png" width="700">
+
+Different color scheme example.
+
+<img src="assets/theme.png" width="700">
 
 ## Requirements
 
