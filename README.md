@@ -9,7 +9,7 @@ tui for k8s
 
 The idea is to free from the need to keep namespaces, deployments, pods names in memory.
 
-It's a good replacement for kubectl or more precisely it's and additional tool that takes over the most of work.
+It's a good replacement for kubectl or more precisely it's an additional tool that takes over the most of work.
 
 ## Features
 
@@ -105,6 +105,15 @@ Classes are predefined. Set your own color with hex.
 }
 ```
 
+## Roadmap
+
+- [x] k8s calls list
+- [x] Namespaces list (kubectl get namespace)
+- [x] Deployments list (kubectl get deployments --namespace=ns)
+- [x] Pods list (kubectl get pods --namespace=ns)
+- [ ] Deployment info (kubectl get deployment deployment-name --namespace=ns -o=json)
+- [ ] Pod info (kubectl get pods pod-name --namespace=ns -o=json)
+- [ ] Pod logs (kkubectl logs pod-name --namespace=ns)
 
 ***
 
