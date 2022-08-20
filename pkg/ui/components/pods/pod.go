@@ -61,9 +61,9 @@ func (p *pod) Render(w io.Writer, m list.Model, index int, listItem list.Item) {
 
 	status := fmt.Sprintf("%s%s", s.Status, minColumnGap)
 	row.WriteString(status)
-	// +1 is alignment: `Running` status is shorter than `Status` header
+	// +3 is alignment: longest `Succeeded` status is 3 symbols longer than `Status` header
 	// TODO: find a better solution
-	row.WriteString(strings.Repeat(" ", lipgloss.Width(podStatusColumn)+len(minColumnGap)+1-lipgloss.Width(status)))
+	row.WriteString(strings.Repeat(" ", lipgloss.Width(podStatusColumn)+len(minColumnGap)+3-lipgloss.Width(status)))
 
 	restarts := fmt.Sprintf("%d%s", s.Restarts, minColumnGap)
 	row.WriteString(restarts)
@@ -71,12 +71,12 @@ func (p *pod) Render(w io.Writer, m list.Model, index int, listItem list.Item) {
 
 	row.WriteString(s.Age)
 
-	podInfo := row.String()
+	rowString := row.String()
 
 	if index == m.Index() {
-		fmt.Fprint(w, p.Styles.SelectedText.Render(podInfo))
+		fmt.Fprint(w, p.Styles.SelectedText.Render(rowString))
 	} else {
-		fmt.Fprint(w, p.Styles.MainText.Render(podInfo))
+		fmt.Fprint(w, p.Styles.MainText.Render(rowString))
 	}
 }
 
@@ -87,8 +87,9 @@ func getHeader() string {
 	header.WriteString(strings.Repeat(" ", nameColumnLen-len(podNameColumn)+len(minColumnGap)-1))
 	header.WriteString(podReadyColumn)
 	header.WriteString(minColumnGap)
+	// alignment: the longest `Succeeded` status is 3 symbols longer than `Status` header
 	// TODO: find a better solution
-	header.WriteString(fmt.Sprintf("%s ", podStatusColumn)) // alignment: `Running` status is shorter than `Status` header
+	header.WriteString(fmt.Sprintf("%s   ", podStatusColumn))
 	header.WriteString(minColumnGap)
 	header.WriteString(podRestartsColumn)
 	header.WriteString(minColumnGap)
