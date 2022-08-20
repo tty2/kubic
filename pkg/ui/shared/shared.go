@@ -7,6 +7,8 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
+const ellipsis = "…"
+
 // Max returns max of two integers.
 func Max(a, b int) int {
 	if a > b {
@@ -21,7 +23,7 @@ func GetTextWithLen(source string, length int) string {
 	lenName := len(source)
 	switch {
 	case lenName > length:
-		name = fmt.Sprintf("%s…", source[:length-1])
+		name = fmt.Sprintf("%s%s", source[:length-1], ellipsis)
 	case lenName < length:
 		name = fmt.Sprintf("%s%s", source, strings.Repeat(" ", length-lipgloss.Width(source)))
 	default:
