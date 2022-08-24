@@ -12,6 +12,12 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
+const (
+	textRightMargin  = 1
+	textLeftMargin   = 2
+	listRightPadding = 3
+)
+
 var validColor = regexp.MustCompile("^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$")
 
 type Styles struct {
@@ -28,9 +34,13 @@ type Styles struct {
 	InactiveTab lipgloss.Style
 	ActiveTab   lipgloss.Style
 	TabsGap     lipgloss.Style
+	// list border style
+	ListRightBorder lipgloss.Style
 	// margin
 	TextRightMargin int
 	TextLeftMargin  int
+	// padding
+	ListRightPadding int
 }
 
 // Theme is a struct to keep all the application styles.
@@ -105,8 +115,14 @@ func GetStyle(theme Theme) Styles {
 			BorderForeground(theme.Borders).
 			Padding(0, 1),
 
-		TextRightMargin: 1,
-		TextLeftMargin:  2,
+		ListRightBorder: lipgloss.NewStyle().
+			Border(lipgloss.NormalBorder(), false, true, false, false).
+			BorderForeground(theme.InactiveText).
+			PaddingRight(listRightPadding).
+			MarginLeft(textLeftMargin),
+
+		TextRightMargin: textRightMargin,
+		TextLeftMargin:  textLeftMargin,
 	}
 }
 
