@@ -55,8 +55,7 @@ func (m *Model) View() string {
 		strings.Repeat(" ", shared.Max(0, m.app.GUI.ScreenWidth-lipgloss.Width(row)-tabsLeftRightIndents)),
 	)
 
-	return m.app.Styles.InitStyle.Copy().
-		Render(lipgloss.JoinHorizontal(lipgloss.Bottom, row, gap))
+	return m.app.Styles.InitStyle.Render(lipgloss.JoinHorizontal(lipgloss.Bottom, row, gap))
 }
 
 func (m *Model) next() {

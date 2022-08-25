@@ -6,6 +6,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/bubbles/paginator"
 	tea "github.com/charmbracelet/bubbletea"
@@ -13,6 +14,13 @@ import (
 	"github.com/tty2/kubic/pkg/domain"
 	"github.com/tty2/kubic/pkg/ui/shared"
 	"github.com/tty2/kubic/pkg/ui/shared/elements/divider"
+)
+
+type focused int
+
+const (
+	listInFocus focused = iota
+	infoInFocus
 )
 
 type deploymentsRepo interface {
@@ -27,10 +35,12 @@ type deploymentsRepo interface {
 // If user switch tab faster than k8s makes call to update list, user will get outdated list.
 // Mutex helps us to wait for k8s response and update list before view.
 type Model struct {
-	app  *shared.App
-	list list.Model
-	repo deploymentsRepo
-	mu   sync.Mutex
+	app     *shared.App
+	list    list.Model
+	repo    deploymentsRepo
+	mu      sync.Mutex
+	focused focused
+	tempIdx int // temporary store list index when move focus right
 }
 
 func New(app *shared.App, repo deploymentsRepo) (*Model, error) {
@@ -61,7 +71,23 @@ func (m *Model) Init() tea.Cmd {
 
 func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
-	m.list, cmd = m.list.Update(msg)
+
+	if msg, ok := msg.(tea.KeyMsg); ok {
+		switch {
+		case key.Matches(msg, m.app.KeyMap.FocusRight):
+			m.changeFocusRight()
+
+			return m, cmd
+		case key.Matches(msg, m.app.KeyMap.FocusLeft):
+			m.changeFocusLeft()
+
+			return m, cmd
+		}
+	}
+
+	if m.listInFocus() {
+		m.list, cmd = m.list.Update(msg)
+	}
 
 	return m, cmd
 }
@@ -136,4 +162,27 @@ func (m *Model) renderInfo() string {
 	}
 
 	return info.String()
+}
+
+func (m *Model) changeFocusRight() {
+	if m.listInFocus() {
+		m.tempIdx = m.list.Index()
+		m.list.Select(-1)
+		m.focused = infoInFocus
+	}
+}
+
+func (m *Model) changeFocusLeft() {
+	if m.infoInFocus() {
+		m.list.Select(m.tempIdx)
+		m.focused = listInFocus
+	}
+}
+
+func (m *Model) listInFocus() bool {
+	return m.focused == listInFocus
+}
+
+func (m *Model) infoInFocus() bool {
+	return m.focused == infoInFocus
 }
