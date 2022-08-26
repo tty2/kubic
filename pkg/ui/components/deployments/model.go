@@ -111,7 +111,14 @@ func (m *Model) View() string {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
-	s.WriteString(m.app.Styles.ListRightBorder.Render(m.list.View()))
+	s.WriteString(
+		m.app.Styles.InitStyle.Render(
+			lipgloss.JoinHorizontal(
+				lipgloss.Top,
+				m.app.Styles.ListRightBorder.Render(m.list.View()),
+				m.infoTitleBar(),
+			),
+		))
 
 	return s.String()
 }
@@ -185,4 +192,15 @@ func (m *Model) listInFocus() bool {
 
 func (m *Model) infoInFocus() bool {
 	return m.focused == infoInFocus
+}
+
+func (m *Model) infoTitleBar() string {
+	var style lipgloss.Style
+	if m.infoInFocus() {
+		style = m.app.Styles.SelectedText.Copy()
+	} else {
+		style = m.app.Styles.MainText.Copy()
+	}
+
+	return style.MarginLeft(m.app.Styles.TextLeftMargin).Render("Info")
 }
