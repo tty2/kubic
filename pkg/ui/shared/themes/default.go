@@ -34,6 +34,10 @@ type Styles struct {
 	InactiveTab lipgloss.Style
 	ActiveTab   lipgloss.Style
 	TabsGap     lipgloss.Style
+	// info bar
+	ActiveInfoTab   lipgloss.Style
+	InactiveInfoTab lipgloss.Style
+	InfoGap         lipgloss.Style
 	// list border style
 	ListRightBorder lipgloss.Style
 	// margin
@@ -84,6 +88,17 @@ var (
 		BottomLeft:  "┴",
 		BottomRight: "┴",
 	}
+
+	infoBorder = lipgloss.Border{
+		Top:         " ",
+		Bottom:      "─",
+		Left:        " ",
+		Right:       " ",
+		TopLeft:     " ",
+		TopRight:    " ",
+		BottomLeft:  " ",
+		BottomRight: " ",
+	}
 )
 
 // nolint gomnd: default values
@@ -114,6 +129,21 @@ func GetStyle(theme Theme) Styles {
 			BorderRight(false).
 			BorderForeground(theme.Borders).
 			Padding(0, 1),
+
+		// info tabs
+		ActiveInfoTab: lipgloss.NewStyle().
+			Border(infoBorder, false, false, true, false).
+			Foreground(theme.SelectedText).
+			BorderForeground(theme.SelectedText),
+
+		InactiveInfoTab: lipgloss.NewStyle().
+			Border(infoBorder, false, false, true, false).
+			Foreground(theme.InactiveText).
+			BorderForeground(theme.InactiveText),
+
+		InfoGap: lipgloss.NewStyle().
+			Border(infoBorder, false, false, true, false).
+			BorderForeground(theme.InactiveText),
 
 		ListRightBorder: lipgloss.NewStyle().
 			Border(lipgloss.NormalBorder(), false, true, false, false).

@@ -40,7 +40,6 @@ type Model struct {
 	repo    deploymentsRepo
 	mu      sync.Mutex
 	focused focused
-	tempIdx int // temporary store list index when move focus right
 }
 
 func New(app *shared.App, repo deploymentsRepo) (*Model, error) {
@@ -116,7 +115,7 @@ func (m *Model) View() string {
 			lipgloss.JoinHorizontal(
 				lipgloss.Top,
 				m.app.Styles.ListRightBorder.Render(m.list.View()),
-				m.infoTitleBar(),
+				m.renderInfoBar(),
 			),
 		))
 
@@ -147,41 +146,14 @@ func (m *Model) UpdateList() {
 	m.list.SetItems(items)
 }
 
-func (m *Model) renderInfo() string {
-	item := m.list.SelectedItem()
-	d, ok := item.(*deployment)
-	if !ok {
-		return ""
-	}
-
-	var info strings.Builder
-	info.WriteString("Name")
-	info.WriteString("\n")
-	info.WriteString(d.Name)
-	info.WriteString("\n")
-	info.WriteString("Labels")
-
-	for k, v := range d.Labels {
-		info.WriteString(k)
-		info.WriteString(": ")
-		info.WriteString(v)
-		info.WriteString("\n")
-	}
-
-	return info.String()
-}
-
 func (m *Model) changeFocusRight() {
 	if m.listInFocus() {
-		m.tempIdx = m.list.Index()
-		m.list.Select(-1)
 		m.focused = infoInFocus
 	}
 }
 
 func (m *Model) changeFocusLeft() {
 	if m.infoInFocus() {
-		m.list.Select(m.tempIdx)
 		m.focused = listInFocus
 	}
 }
@@ -194,13 +166,59 @@ func (m *Model) infoInFocus() bool {
 	return m.focused == infoInFocus
 }
 
-func (m *Model) infoTitleBar() string {
-	var style lipgloss.Style
-	if m.infoInFocus() {
-		style = m.app.Styles.SelectedText.Copy()
-	} else {
-		style = m.app.Styles.MainText.Copy()
+func (m *Model) renderInfoBar() string {
+	dep := m.getCurrentDeployment()
+
+	var infoData string
+	if dep != nil {
+		infoData = dep.renderInfo()
 	}
 
-	return style.MarginLeft(m.app.Styles.TextLeftMargin).Render("Info")
+	if !m.infoInFocus() {
+		infoData = m.app.Styles.InactiveText.Render(infoData)
+	}
+
+	info := lipgloss.JoinVertical(lipgloss.Left,
+		m.renderInfoTitleBar(),
+		infoData,
+	)
+
+	return m.app.Styles.InitStyle.Copy().MarginLeft(m.app.Styles.TextLeftMargin).Render(info)
+}
+
+func (m *Model) getCurrentDeployment() *deployment {
+	item := m.list.SelectedItem()
+	dep, ok := item.(*deployment)
+	if !ok {
+		return nil
+	}
+
+	return dep
+}
+
+func (m *Model) renderInfoTitleBar() string {
+	tabs := getInfoTabs()
+	titles := make([]string, len(tabs))
+	for i := range tabs {
+		if m.infoInFocus() {
+			titles[i] = m.app.Styles.ActiveInfoTab.Render(tabs[i])
+		} else {
+			titles[i] = m.app.Styles.InactiveInfoTab.Render(tabs[i])
+		}
+	}
+
+	titlesStr := lipgloss.JoinHorizontal(
+		lipgloss.Top,
+		titles...,
+	)
+
+	gap := m.app.Styles.InfoGap.Render(
+		strings.Repeat(" ", shared.Max(0, m.app.GUI.ScreenWidth-lipgloss.Width(titlesStr))),
+	)
+
+	return lipgloss.JoinHorizontal(lipgloss.Bottom, titlesStr, gap)
+}
+
+func getInfoTabs() []string {
+	return []string{"Info"}
 }
