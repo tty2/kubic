@@ -85,7 +85,7 @@ func (m *Model) View() string {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
-	s.WriteString(m.app.Styles.InitStyle.Copy().MarginLeft(m.app.Styles.TextLeftMargin).Render(m.list.View()))
+	s.WriteString(m.app.Styles.ListRightBorder.Render(m.list.View()))
 
 	return s.String()
 }

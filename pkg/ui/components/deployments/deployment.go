@@ -107,3 +107,24 @@ func getHeader() string {
 
 	return header.String()
 }
+
+func (d *deployment) renderInfo() string {
+	var info strings.Builder
+	info.WriteString("Name")
+	info.WriteString("\n")
+	info.WriteString(minColumnGap)
+	info.WriteString(d.Name)
+	info.WriteString("\n")
+	info.WriteString("Labels")
+	info.WriteString("\n")
+
+	for k, v := range d.Labels {
+		info.WriteString(minColumnGap)
+		info.WriteString(k)
+		info.WriteString(": ")
+		info.WriteString(v)
+		info.WriteString("\n")
+	}
+
+	return info.String()
+}

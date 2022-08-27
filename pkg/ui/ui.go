@@ -100,13 +100,10 @@ func (model *MainModel) View() string {
 	switch model.app.CurrentTab {
 	case shared.NamespacesTab:
 		s.WriteString(lipgloss.JoinHorizontal(lipgloss.Top, model.components.namespaces.View()))
-		s.WriteString("\n")
 	case shared.DeploymentsTab:
 		s.WriteString(lipgloss.JoinHorizontal(lipgloss.Top, model.components.deployments.View()))
-		s.WriteString("\n")
 	case shared.PodsTab:
 		s.WriteString(lipgloss.JoinHorizontal(lipgloss.Top, model.components.pods.View()))
-		s.WriteString("\n")
 	}
 
 	// help

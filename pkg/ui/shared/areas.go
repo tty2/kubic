@@ -2,7 +2,7 @@ package shared
 
 const (
 	TabsBarHeight = 3
-	HelpBarHeight = 4
+	HelpBarHeight = 3
 	FullScreen    = -1
 )
 

@@ -6,6 +6,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/bubbles/paginator"
 	tea "github.com/charmbracelet/bubbletea"
@@ -13,6 +14,13 @@ import (
 	"github.com/tty2/kubic/pkg/domain"
 	"github.com/tty2/kubic/pkg/ui/shared"
 	"github.com/tty2/kubic/pkg/ui/shared/elements/divider"
+)
+
+type focused int
+
+const (
+	listInFocus focused = iota
+	infoInFocus
 )
 
 type deploymentsRepo interface {
@@ -27,10 +35,11 @@ type deploymentsRepo interface {
 // If user switch tab faster than k8s makes call to update list, user will get outdated list.
 // Mutex helps us to wait for k8s response and update list before view.
 type Model struct {
-	app  *shared.App
-	list list.Model
-	repo deploymentsRepo
-	mu   sync.Mutex
+	app     *shared.App
+	list    list.Model
+	repo    deploymentsRepo
+	mu      sync.Mutex
+	focused focused
 }
 
 func New(app *shared.App, repo deploymentsRepo) (*Model, error) {
@@ -61,7 +70,23 @@ func (m *Model) Init() tea.Cmd {
 
 func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
-	m.list, cmd = m.list.Update(msg)
+
+	if msg, ok := msg.(tea.KeyMsg); ok {
+		switch {
+		case key.Matches(msg, m.app.KeyMap.FocusRight):
+			m.changeFocusRight()
+
+			return m, cmd
+		case key.Matches(msg, m.app.KeyMap.FocusLeft):
+			m.changeFocusLeft()
+
+			return m, cmd
+		}
+	}
+
+	if m.listInFocus() {
+		m.list, cmd = m.list.Update(msg)
+	}
 
 	return m, cmd
 }
@@ -85,7 +110,14 @@ func (m *Model) View() string {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
-	s.WriteString(m.app.Styles.InitStyle.Copy().MarginLeft(m.app.Styles.TextLeftMargin).Render(m.list.View()))
+	s.WriteString(
+		m.app.Styles.InitStyle.Render(
+			lipgloss.JoinHorizontal(
+				lipgloss.Top,
+				m.app.Styles.ListRightBorder.Render(m.list.View()),
+				m.renderInfoBar(),
+			),
+		))
 
 	return s.String()
 }
@@ -112,4 +144,81 @@ func (m *Model) UpdateList() {
 	}
 
 	m.list.SetItems(items)
+}
+
+func (m *Model) changeFocusRight() {
+	if m.listInFocus() {
+		m.focused = infoInFocus
+	}
+}
+
+func (m *Model) changeFocusLeft() {
+	if m.infoInFocus() {
+		m.focused = listInFocus
+	}
+}
+
+func (m *Model) listInFocus() bool {
+	return m.focused == listInFocus
+}
+
+func (m *Model) infoInFocus() bool {
+	return m.focused == infoInFocus
+}
+
+func (m *Model) renderInfoBar() string {
+	dep := m.getCurrentDeployment()
+
+	var infoData string
+	if dep != nil {
+		infoData = dep.renderInfo()
+	}
+
+	if !m.infoInFocus() {
+		infoData = m.app.Styles.InactiveText.Render(infoData)
+	}
+
+	info := lipgloss.JoinVertical(lipgloss.Left,
+		m.renderInfoTitleBar(),
+		infoData,
+	)
+
+	return m.app.Styles.InitStyle.Copy().MarginLeft(m.app.Styles.TextLeftMargin).Render(info)
+}
+
+func (m *Model) getCurrentDeployment() *deployment {
+	item := m.list.SelectedItem()
+	dep, ok := item.(*deployment)
+	if !ok {
+		return nil
+	}
+
+	return dep
+}
+
+func (m *Model) renderInfoTitleBar() string {
+	tabs := getInfoTabs()
+	titles := make([]string, len(tabs))
+	for i := range tabs {
+		if m.infoInFocus() {
+			titles[i] = m.app.Styles.ActiveInfoTab.Render(tabs[i])
+		} else {
+			titles[i] = m.app.Styles.InactiveInfoTab.Render(tabs[i])
+		}
+	}
+
+	titlesStr := lipgloss.JoinHorizontal(
+		lipgloss.Top,
+		titles...,
+	)
+
+	gap := m.app.Styles.InfoGap.Render(
+		strings.Repeat(" ", shared.Max(0, m.app.GUI.ScreenWidth-lipgloss.Width(titlesStr))),
+	)
+
+	return lipgloss.JoinHorizontal(lipgloss.Bottom, titlesStr, gap)
+}
+
+func getInfoTabs() []string {
+	return []string{"Info"}
 }

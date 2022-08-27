@@ -12,6 +12,12 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
+const (
+	textRightMargin  = 1
+	textLeftMargin   = 2
+	listRightPadding = 3
+)
+
 var validColor = regexp.MustCompile("^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$")
 
 type Styles struct {
@@ -28,9 +34,17 @@ type Styles struct {
 	InactiveTab lipgloss.Style
 	ActiveTab   lipgloss.Style
 	TabsGap     lipgloss.Style
+	// info bar
+	ActiveInfoTab   lipgloss.Style
+	InactiveInfoTab lipgloss.Style
+	InfoGap         lipgloss.Style
+	// list border style
+	ListRightBorder lipgloss.Style
 	// margin
 	TextRightMargin int
 	TextLeftMargin  int
+	// padding
+	ListRightPadding int
 }
 
 // Theme is a struct to keep all the application styles.
@@ -74,6 +88,17 @@ var (
 		BottomLeft:  "┴",
 		BottomRight: "┴",
 	}
+
+	infoBorder = lipgloss.Border{
+		Top:         " ",
+		Bottom:      "─",
+		Left:        " ",
+		Right:       " ",
+		TopLeft:     " ",
+		TopRight:    " ",
+		BottomLeft:  " ",
+		BottomRight: " ",
+	}
 )
 
 // nolint gomnd: default values
@@ -105,8 +130,29 @@ func GetStyle(theme Theme) Styles {
 			BorderForeground(theme.Borders).
 			Padding(0, 1),
 
-		TextRightMargin: 1,
-		TextLeftMargin:  2,
+		// info tabs
+		ActiveInfoTab: lipgloss.NewStyle().
+			Border(infoBorder, false, false, true, false).
+			Foreground(theme.SelectedText).
+			BorderForeground(theme.SelectedText),
+
+		InactiveInfoTab: lipgloss.NewStyle().
+			Border(infoBorder, false, false, true, false).
+			Foreground(theme.InactiveText).
+			BorderForeground(theme.InactiveText),
+
+		InfoGap: lipgloss.NewStyle().
+			Border(infoBorder, false, false, true, false).
+			BorderForeground(theme.InactiveText),
+
+		ListRightBorder: lipgloss.NewStyle().
+			Border(lipgloss.NormalBorder(), false, true, false, false).
+			BorderForeground(theme.InactiveText).
+			PaddingRight(listRightPadding).
+			MarginLeft(textLeftMargin),
+
+		TextRightMargin: textRightMargin,
+		TextLeftMargin:  textLeftMargin,
 	}
 }
 

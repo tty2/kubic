@@ -6,16 +6,18 @@ import (
 )
 
 type KeyMap struct {
-	Tab       key.Binding
-	ShiftTab  key.Binding
-	Up        key.Binding
-	Down      key.Binding
-	PrevPage  key.Binding
-	NextPage  key.Binding
-	Select    key.Binding
-	Help      key.Binding
-	HelpShort key.Binding
-	Quit      key.Binding
+	Tab        key.Binding
+	ShiftTab   key.Binding
+	Up         key.Binding
+	Down       key.Binding
+	PrevPage   key.Binding
+	NextPage   key.Binding
+	FocusRight key.Binding
+	FocusLeft  key.Binding
+	Select     key.Binding
+	Help       key.Binding
+	HelpShort  key.Binding
+	Quit       key.Binding
 }
 
 func (k KeyMap) ShortHelp() []key.Binding {
@@ -55,6 +57,14 @@ func GetKeyMaps() KeyMap {
 		NextPage: key.NewBinding(
 			key.WithKeys("right", "l"),
 			key.WithHelp("→/l", "next page"),
+		),
+		FocusRight: key.NewBinding(
+			key.WithKeys(tea.KeyCtrlL.String(), tea.KeyCtrlRight.String()),
+			key.WithHelp("Ctrl+→/l", "focus right"),
+		),
+		FocusLeft: key.NewBinding(
+			key.WithKeys(tea.KeyCtrlH.String(), tea.KeyCtrlLeft.String()),
+			key.WithHelp("Ctrl+←/h", "focus left"),
 		),
 		Help: key.NewBinding(
 			key.WithKeys("?"),
