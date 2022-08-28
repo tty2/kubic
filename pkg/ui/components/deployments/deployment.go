@@ -8,6 +8,7 @@ import (
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/tty2/kubic/pkg/domain"
 	"github.com/tty2/kubic/pkg/ui/shared"
 	"github.com/tty2/kubic/pkg/ui/shared/themes"
 )
@@ -37,6 +38,7 @@ type (
 		Age               string
 		Labels            map[string]string
 		Styles            *themes.Styles
+		Meta              domain.DeploymentMeta
 	}
 )
 
@@ -112,12 +114,12 @@ func getHeader() string {
 
 func (d *deployment) renderInfo() string {
 	var info strings.Builder
-	info.WriteString("Name")
+	info.WriteString(boldText.Render("Name"))
 	info.WriteString("\n")
 	info.WriteString(minColumnGap)
 	info.WriteString(d.Name)
 	info.WriteString("\n")
-	info.WriteString("Labels")
+	info.WriteString(boldText.Render("Labels"))
 	info.WriteString("\n")
 
 	for k, v := range d.Labels {
@@ -128,7 +130,7 @@ func (d *deployment) renderInfo() string {
 		info.WriteString("\n")
 	}
 
-	info.WriteString("Replicas")
+	info.WriteString(boldText.Render("Replicas"))
 	info.WriteString("\n")
 	info.WriteString(minColumnGap)
 	info.WriteString(fmt.Sprintf("Available: %d\n", d.AvailableReplicas))
@@ -137,10 +139,68 @@ func (d *deployment) renderInfo() string {
 	info.WriteString(minColumnGap)
 	info.WriteString(fmt.Sprintf("Updated: %d\n", d.UpdatedReplicas))
 
-	info.WriteString("Tolerations")
+	info.WriteString(boldText.Render("Tolerations"))
 	info.WriteString("\n")
 	info.WriteString(minColumnGap)
 	info.WriteString(fmt.Sprintf("Total: %d\n", d.Tolerations))
+
+	info.WriteString(boldText.Render("Strategy"))
+	info.WriteString("\n")
+	info.WriteString(minColumnGap)
+	info.WriteString(d.Meta.Strategy)
+	info.WriteString("\n")
+
+	info.WriteString(boldText.Render("DNS Policy"))
+	info.WriteString("\n")
+	info.WriteString(minColumnGap)
+	info.WriteString(d.Meta.DNSPolicy)
+	info.WriteString("\n")
+
+	info.WriteString(boldText.Render("Restart Policy"))
+	info.WriteString("\n")
+	info.WriteString(minColumnGap)
+	info.WriteString(d.Meta.RestartPolicy)
+	info.WriteString("\n")
+
+	info.WriteString(boldText.Render("Scheduler"))
+	info.WriteString("\n")
+	info.WriteString(minColumnGap)
+	info.WriteString(d.Meta.SchedulerName)
+	info.WriteString("\n")
+
+	info.WriteString(boldText.Render("Termination Grace Period"))
+	info.WriteString("\n")
+	info.WriteString(minColumnGap)
+	info.WriteString(fmt.Sprintf("%d seconds", d.Meta.TerminationGracePeriodSeconds))
+	info.WriteString("\n")
+
+	info.WriteString(boldText.Render("Containers"))
+	info.WriteString("\n")
+	for i := range d.Meta.Containers {
+		info.WriteString(minColumnGap)
+		info.WriteString(fmt.Sprintf("Name: %s", d.Meta.Containers[i].Name))
+		info.WriteString("\n")
+		info.WriteString(minColumnGap)
+		info.WriteString(fmt.Sprintf("Image: %s", d.Meta.Containers[i].Image))
+		info.WriteString("\n")
+		info.WriteString(minColumnGap)
+		info.WriteString(fmt.Sprintf("Policy: %s", d.Meta.Containers[i].ImagePullPolicy))
+		info.WriteString("\n")
+		info.WriteString(minColumnGap)
+		info.WriteString(fmt.Sprintf("Termination message path: %s", d.Meta.Containers[i].TerminationMessagePath))
+		info.WriteString("\n")
+		info.WriteString(minColumnGap)
+		if len(d.Meta.Containers[i].ENVs) > 0 {
+			info.WriteString(boldText.Render("Envs"))
+			info.WriteString("\n")
+			for j := range d.Meta.Containers[i].ENVs {
+				info.WriteString(minColumnGap)
+				info.WriteString(minColumnGap)
+				info.WriteString(d.Meta.Containers[i].ENVs[j].Name)
+				info.WriteString("\n")
+			}
+		}
+	}
 
 	return info.String()
 }

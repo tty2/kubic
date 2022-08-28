@@ -69,6 +69,24 @@ func (c *Client) GetDeployments(ctx context.Context, namespace string) ([]domain
 		deps[i].Age = ageToString(age)
 
 		deps[i].Labels = apiResp.Items[i].Labels
+
+		// populate meta
+		deps[i].Meta.Strategy = string(apiResp.Items[i].Spec.Strategy.Type)
+		deps[i].Meta.DNSPolicy = string(apiResp.Items[i].Spec.Template.Spec.DNSPolicy)
+		deps[i].Meta.RestartPolicy = string(apiResp.Items[i].Spec.Template.Spec.RestartPolicy)
+		deps[i].Meta.SchedulerName = apiResp.Items[i].Spec.Template.Spec.SchedulerName
+		deps[i].Meta.TerminationGracePeriodSeconds = *apiResp.Items[i].Spec.Template.Spec.TerminationGracePeriodSeconds
+
+		deps[i].Meta.Containers = make([]domain.Container, len(apiResp.Items[i].Spec.Template.Spec.Containers))
+		for j, c := range apiResp.Items[i].Spec.Template.Spec.Containers {
+			deps[i].Meta.Containers[j] = domain.Container{
+				Name:                   c.Name,
+				Image:                  c.Image,
+				ImagePullPolicy:        string(c.ImagePullPolicy),
+				TerminationMessagePath: c.TerminationMessagePath,
+				ENVs:                   getEnvs(c.Env),
+			}
+		}
 	}
 
 	return deps, nil
@@ -148,4 +166,14 @@ func getRestartsCount(ss []corev1.ContainerStatus) int {
 	}
 
 	return int(number)
+}
+
+func getEnvs(envs []corev1.EnvVar) []domain.ContainerEnv {
+	cEnvs := make([]domain.ContainerEnv, len(envs))
+	for i := range envs {
+		cEnvs[i].Name = envs[i].Name
+		cEnvs[i].Value = envs[i].Value
+	}
+
+	return cEnvs
 }

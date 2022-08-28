@@ -14,6 +14,7 @@ import (
 	"github.com/tty2/kubic/pkg/domain"
 	"github.com/tty2/kubic/pkg/ui/shared"
 	"github.com/tty2/kubic/pkg/ui/shared/elements/divider"
+	"github.com/tty2/kubic/pkg/ui/shared/infobar"
 )
 
 type focused int
@@ -40,12 +41,14 @@ type Model struct {
 	repo    deploymentsRepo
 	mu      sync.Mutex
 	focused focused
+	infobar *infobar.Model
 }
 
 func New(app *shared.App, repo deploymentsRepo) (*Model, error) {
 	m := Model{
-		repo: repo,
-		app:  app,
+		repo:    repo,
+		app:     app,
+		infobar: infobar.New(),
 	}
 
 	itemsModel := list.New([]list.Item{}, &deployment{
@@ -61,6 +64,9 @@ func New(app *shared.App, repo deploymentsRepo) (*Model, error) {
 	m.UpdateList()
 	m.app.AddUpdateNamespaceCallback(m.UpdateList)
 	m.app.AddUpdateNamespaceCallback(m.resetFocus)
+	m.app.AddUpdateNamespaceCallback(m.setInfoContent)
+
+	m.infobar.SetWH(app.GUI.ScreenWidth-lipgloss.Width(getHeader()), app.GUI.Areas.MainContent.Height-tableHeaderHeight)
 
 	return &m, nil
 }
@@ -87,6 +93,9 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	if m.listInFocus() {
 		m.list, cmd = m.list.Update(msg)
+		m.infobar.SetContent(m.getCurrentDeployment().renderInfo())
+	} else {
+		_, cmd = m.infobar.Update(msg)
 	}
 
 	return m, cmd
@@ -143,6 +152,7 @@ func (m *Model) UpdateList() {
 			Tolerations:       deps[i].Tolerations,
 			Labels:            deps[i].Labels,
 			Age:               deps[i].Age,
+			Meta:              deps[i].Meta,
 		}
 	}
 
@@ -175,12 +185,13 @@ func (m *Model) resetFocus() {
 }
 
 func (m *Model) renderInfoBar() string {
-	dep := m.getCurrentDeployment()
+	// dep := m.getCurrentDeployment()
 
-	var infoData string
-	if dep != nil {
-		infoData = dep.renderInfo()
-	}
+	// var infoData string
+	// if dep != nil {
+	// 	infoData = dep.renderInfo()
+	// }
+	infoData := m.infobar.View()
 
 	if !m.infoInFocus() {
 		infoData = m.app.Styles.InactiveText.Render(infoData)
@@ -229,4 +240,15 @@ func (m *Model) renderInfoTitleBar() string {
 
 func getInfoTabs() []string {
 	return []string{"Info"}
+}
+
+func (m *Model) setInfoContent() {
+	dep := m.getCurrentDeployment()
+	if dep == nil {
+		return
+	}
+	dep.Styles = m.app.Styles
+	m.infobar.SetContent(
+		m.getCurrentDeployment().renderInfo(),
+	)
 }
