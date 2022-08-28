@@ -7,12 +7,15 @@ type Namespace struct {
 }
 
 type Deployment struct {
-	Name      string
-	Ready     string
-	UpToDate  int
-	Available int
-	Age       string
-	Labels    map[string]string
+	Name              string
+	Ready             string
+	UpdatedReplicas   int
+	AvailableReplicas int
+	ReadyReplicas     int
+	Tolerations       int
+	Age               string
+	Envs              []string
+	Labels            map[string]string
 }
 
 type Pod struct {

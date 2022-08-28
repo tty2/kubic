@@ -60,6 +60,7 @@ func New(app *shared.App, repo deploymentsRepo) (*Model, error) {
 	m.list = itemsModel
 	m.UpdateList()
 	m.app.AddUpdateNamespaceCallback(m.UpdateList)
+	m.app.AddUpdateNamespaceCallback(m.resetFocus)
 
 	return &m, nil
 }
@@ -134,12 +135,14 @@ func (m *Model) UpdateList() {
 	items := make([]list.Item, len(deps))
 	for i := range deps {
 		items[i] = &deployment{
-			Name:      deps[i].Name,
-			Ready:     deps[i].Ready,
-			UpToDate:  deps[i].UpToDate,
-			Available: deps[i].Available,
-			Labels:    deps[i].Labels,
-			Age:       deps[i].Age,
+			Name:              deps[i].Name,
+			Ready:             deps[i].Ready,
+			UpdatedReplicas:   deps[i].UpdatedReplicas,
+			AvailableReplicas: deps[i].AvailableReplicas,
+			ReadyReplicas:     deps[i].ReadyReplicas,
+			Tolerations:       deps[i].Tolerations,
+			Labels:            deps[i].Labels,
+			Age:               deps[i].Age,
 		}
 	}
 
@@ -164,6 +167,11 @@ func (m *Model) listInFocus() bool {
 
 func (m *Model) infoInFocus() bool {
 	return m.focused == infoInFocus
+}
+
+func (m *Model) resetFocus() {
+	m.focused = listInFocus
+	m.list.ResetSelected()
 }
 
 func (m *Model) renderInfoBar() string {

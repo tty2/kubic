@@ -28,13 +28,15 @@ const (
 
 type (
 	deployment struct {
-		Name      string
-		Ready     string
-		UpToDate  int
-		Available int
-		Age       string
-		Labels    map[string]string
-		Styles    *themes.Styles
+		Name              string
+		Ready             string
+		UpdatedReplicas   int
+		AvailableReplicas int
+		ReadyReplicas     int
+		Tolerations       int
+		Age               string
+		Labels            map[string]string
+		Styles            *themes.Styles
 	}
 )
 
@@ -62,12 +64,12 @@ func (d *deployment) Render(w io.Writer, m list.Model, index int, listItem list.
 	row.WriteString(strings.Repeat(" ", readyColumnLen-lipgloss.Width(s.Ready)))
 	row.WriteString(minColumnGap)
 
-	upToDate := fmt.Sprintf("%d", s.UpToDate)
+	upToDate := fmt.Sprintf("%d", s.UpdatedReplicas)
 	row.WriteString(upToDate)
 	row.WriteString(strings.Repeat(" ", upToDateColumnLen-lipgloss.Width(upToDate)))
 	row.WriteString(minColumnGap)
 
-	available := fmt.Sprintf("%d", s.Available)
+	available := fmt.Sprintf("%d", s.AvailableReplicas)
 	row.WriteString(available)
 	row.WriteString(strings.Repeat(" ", availableColumnLen-lipgloss.Width(available)))
 	row.WriteString(minColumnGap)
@@ -125,6 +127,20 @@ func (d *deployment) renderInfo() string {
 		info.WriteString(v)
 		info.WriteString("\n")
 	}
+
+	info.WriteString("Replicas")
+	info.WriteString("\n")
+	info.WriteString(minColumnGap)
+	info.WriteString(fmt.Sprintf("Available: %d\n", d.AvailableReplicas))
+	info.WriteString(minColumnGap)
+	info.WriteString(fmt.Sprintf("Ready: %d\n", d.ReadyReplicas))
+	info.WriteString(minColumnGap)
+	info.WriteString(fmt.Sprintf("Updated: %d\n", d.UpdatedReplicas))
+
+	info.WriteString("Tolerations")
+	info.WriteString("\n")
+	info.WriteString(minColumnGap)
+	info.WriteString(fmt.Sprintf("Total: %d\n", d.Tolerations))
 
 	return info.String()
 }

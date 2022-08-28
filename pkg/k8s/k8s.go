@@ -60,8 +60,10 @@ func (c *Client) GetDeployments(ctx context.Context, namespace string) ([]domain
 	for i := range apiResp.Items {
 		deps[i].Name = apiResp.Items[i].Name
 		deps[i].Ready = fmt.Sprintf("%d/%d", apiResp.Items[i].Status.ReadyReplicas, apiResp.Items[i].Status.Replicas)
-		deps[i].UpToDate = int(apiResp.Items[i].Status.UpdatedReplicas)
-		deps[i].Available = int(apiResp.Items[i].Status.AvailableReplicas)
+		deps[i].UpdatedReplicas = int(apiResp.Items[i].Status.UpdatedReplicas)
+		deps[i].AvailableReplicas = int(apiResp.Items[i].Status.AvailableReplicas)
+		deps[i].ReadyReplicas = int(apiResp.Items[i].Status.ReadyReplicas)
+		deps[i].Tolerations = len(apiResp.Items[i].Spec.Template.Spec.Tolerations)
 
 		age := time.Now().Unix() - apiResp.Items[i].GetCreationTimestamp().Unix()
 		deps[i].Age = ageToString(age)
