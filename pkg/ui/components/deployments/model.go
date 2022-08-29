@@ -14,6 +14,7 @@ import (
 	"github.com/tty2/kubic/pkg/domain"
 	"github.com/tty2/kubic/pkg/ui/shared"
 	"github.com/tty2/kubic/pkg/ui/shared/elements/divider"
+	"github.com/tty2/kubic/pkg/ui/shared/infobar"
 )
 
 type focused int
@@ -40,12 +41,14 @@ type Model struct {
 	repo    deploymentsRepo
 	mu      sync.Mutex
 	focused focused
+	infobar *infobar.Model
 }
 
 func New(app *shared.App, repo deploymentsRepo) (*Model, error) {
 	m := Model{
-		repo: repo,
-		app:  app,
+		repo:    repo,
+		app:     app,
+		infobar: infobar.New(),
 	}
 
 	itemsModel := list.New([]list.Item{}, &deployment{
@@ -59,7 +62,12 @@ func New(app *shared.App, repo deploymentsRepo) (*Model, error) {
 	itemsModel.Paginator.Type = paginator.Dots
 	m.list = itemsModel
 	m.UpdateList()
+
 	m.app.AddUpdateNamespaceCallback(m.UpdateList)
+	m.app.AddUpdateNamespaceCallback(m.resetFocus)
+	m.app.AddUpdateNamespaceCallback(m.setInfoContent)
+
+	m.setInfoBarHeight()
 
 	return &m, nil
 }
@@ -79,6 +87,7 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, cmd
 		case key.Matches(msg, m.app.KeyMap.FocusLeft):
 			m.changeFocusLeft()
+			m.infobar.ResetView()
 
 			return m, cmd
 		}
@@ -86,12 +95,17 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	if m.listInFocus() {
 		m.list, cmd = m.list.Update(msg)
+		m.setInfoContent()
+	} else {
+		_, cmd = m.infobar.Update(msg)
 	}
 
 	return m, cmd
 }
 
 func (m *Model) View() string {
+	m.setInfoBarHeight()
+
 	var s strings.Builder
 	s.WriteString("\n")
 	header := getHeader()
@@ -105,7 +119,6 @@ func (m *Model) View() string {
 	s.WriteString("\n")
 	s.WriteString(divider.HorizontalLine(m.app.GUI.ScreenWidth, m.app.Styles.InactiveText))
 	s.WriteString("\n")
-	m.list.SetHeight(m.app.GUI.Areas.MainContent.Height - tableHeaderHeight)
 
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -134,12 +147,16 @@ func (m *Model) UpdateList() {
 	items := make([]list.Item, len(deps))
 	for i := range deps {
 		items[i] = &deployment{
-			Name:      deps[i].Name,
-			Ready:     deps[i].Ready,
-			UpToDate:  deps[i].UpToDate,
-			Available: deps[i].Available,
-			Labels:    deps[i].Labels,
-			Age:       deps[i].Age,
+			Name:              deps[i].Name,
+			Created:           deps[i].Created,
+			Ready:             deps[i].Ready,
+			UpdatedReplicas:   deps[i].UpdatedReplicas,
+			AvailableReplicas: deps[i].AvailableReplicas,
+			ReadyReplicas:     deps[i].ReadyReplicas,
+			Tolerations:       deps[i].Tolerations,
+			Labels:            deps[i].Labels,
+			Age:               deps[i].Age,
+			Meta:              deps[i].Meta,
 		}
 	}
 
@@ -166,20 +183,20 @@ func (m *Model) infoInFocus() bool {
 	return m.focused == infoInFocus
 }
 
-func (m *Model) renderInfoBar() string {
-	dep := m.getCurrentDeployment()
+func (m *Model) resetFocus() {
+	m.focused = listInFocus
+	m.list.ResetSelected()
+}
 
-	var infoData string
-	if dep != nil {
-		infoData = dep.renderInfo()
-	}
+func (m *Model) renderInfoBar() string {
+	infoData := m.infobar.View()
 
 	if !m.infoInFocus() {
 		infoData = m.app.Styles.InactiveText.Render(infoData)
 	}
 
 	info := lipgloss.JoinVertical(lipgloss.Left,
-		m.renderInfoTitleBar(),
+		m.renderInfoBarTabs(),
 		infoData,
 	)
 
@@ -196,7 +213,7 @@ func (m *Model) getCurrentDeployment() *deployment {
 	return dep
 }
 
-func (m *Model) renderInfoTitleBar() string {
+func (m *Model) renderInfoBarTabs() string {
 	tabs := getInfoTabs()
 	titles := make([]string, len(tabs))
 	for i := range tabs {
@@ -217,6 +234,27 @@ func (m *Model) renderInfoTitleBar() string {
 	)
 
 	return lipgloss.JoinHorizontal(lipgloss.Bottom, titlesStr, gap)
+}
+
+func (m *Model) setInfoContent() {
+	dep := m.getCurrentDeployment()
+	if dep == nil {
+		m.infobar.SetContent("")
+
+		return
+	}
+	dep.Styles = m.app.Styles
+	m.infobar.SetContent(
+		m.getCurrentDeployment().renderInfo(),
+	)
+}
+
+func (m *Model) setInfoBarHeight() {
+	m.infobar.SetWH(
+		m.app.GUI.ScreenWidth-lipgloss.Width(getHeader()),
+		m.app.GUI.Areas.MainContent.Height-tableHeaderHeight,
+	)
+	m.list.SetHeight(m.app.GUI.Areas.MainContent.Height - tableHeaderHeight)
 }
 
 func getInfoTabs() []string {

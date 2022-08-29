@@ -60,13 +60,24 @@ func (c *Client) GetDeployments(ctx context.Context, namespace string) ([]domain
 	for i := range apiResp.Items {
 		deps[i].Name = apiResp.Items[i].Name
 		deps[i].Ready = fmt.Sprintf("%d/%d", apiResp.Items[i].Status.ReadyReplicas, apiResp.Items[i].Status.Replicas)
-		deps[i].UpToDate = int(apiResp.Items[i].Status.UpdatedReplicas)
-		deps[i].Available = int(apiResp.Items[i].Status.AvailableReplicas)
+		deps[i].UpdatedReplicas = int(apiResp.Items[i].Status.UpdatedReplicas)
+		deps[i].AvailableReplicas = int(apiResp.Items[i].Status.AvailableReplicas)
+		deps[i].ReadyReplicas = int(apiResp.Items[i].Status.ReadyReplicas)
+		deps[i].Tolerations = len(apiResp.Items[i].Spec.Template.Spec.Tolerations)
 
 		age := time.Now().Unix() - apiResp.Items[i].GetCreationTimestamp().Unix()
 		deps[i].Age = ageToString(age)
 
 		deps[i].Labels = apiResp.Items[i].Labels
+		deps[i].Created = apiResp.Items[i].ObjectMeta.CreationTimestamp.Time
+
+		// populate meta
+		deps[i].Meta.Strategy = string(apiResp.Items[i].Spec.Strategy.Type)
+		deps[i].Meta.DNSPolicy = string(apiResp.Items[i].Spec.Template.Spec.DNSPolicy)
+		deps[i].Meta.RestartPolicy = string(apiResp.Items[i].Spec.Template.Spec.RestartPolicy)
+		deps[i].Meta.SchedulerName = apiResp.Items[i].Spec.Template.Spec.SchedulerName
+		deps[i].Meta.TerminationGracePeriodSeconds = *apiResp.Items[i].Spec.Template.Spec.TerminationGracePeriodSeconds
+		deps[i].Meta.Containers = toDomainContainers(apiResp.Items[i].Spec.Template.Spec.Containers)
 	}
 
 	return deps, nil
@@ -146,4 +157,27 @@ func getRestartsCount(ss []corev1.ContainerStatus) int {
 	}
 
 	return int(number)
+}
+
+func getEnvs(envs []corev1.EnvVar) []domain.ContainerEnv {
+	cEnvs := make([]domain.ContainerEnv, len(envs))
+	for i := range envs {
+		cEnvs[i].Name = envs[i].Name
+		cEnvs[i].Value = envs[i].Value
+	}
+
+	return cEnvs
+}
+
+func toDomainContainers(cc []corev1.Container) []domain.Container {
+	domainContainers := make([]domain.Container, len(cc))
+	for i := range cc {
+		domainContainers[i].Name = cc[i].Name
+		domainContainers[i].Image = cc[i].Image
+		domainContainers[i].ImagePullPolicy = string(cc[i].ImagePullPolicy)
+		domainContainers[i].TerminationMessagePath = cc[i].TerminationMessagePath
+		domainContainers[i].ENVs = getEnvs(cc[i].Env)
+	}
+
+	return domainContainers
 }

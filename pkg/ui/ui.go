@@ -32,6 +32,7 @@ type MainModel struct {
 }
 
 func New(k8sClient *k8s.Client, theme themes.Theme) (tea.Model, error) {
+	var err error
 	app := shared.NewApp(theme)
 	model := MainModel{
 		app: app,
