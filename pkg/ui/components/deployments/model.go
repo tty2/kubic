@@ -86,6 +86,7 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, cmd
 		case key.Matches(msg, m.app.KeyMap.FocusLeft):
 			m.changeFocusLeft()
+			m.infobar.ResetView()
 
 			return m, cmd
 		}
@@ -93,7 +94,7 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	if m.listInFocus() {
 		m.list, cmd = m.list.Update(msg)
-		m.infobar.SetContent(m.getCurrentDeployment().renderInfo())
+		m.setInfoContent()
 	} else {
 		_, cmd = m.infobar.Update(msg)
 	}
@@ -102,6 +103,8 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m *Model) View() string {
+	m.setContentHeight()
+
 	var s strings.Builder
 	s.WriteString("\n")
 	header := getHeader()
@@ -115,7 +118,6 @@ func (m *Model) View() string {
 	s.WriteString("\n")
 	s.WriteString(divider.HorizontalLine(m.app.GUI.ScreenWidth, m.app.Styles.InactiveText))
 	s.WriteString("\n")
-	m.setContentHeight()
 
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -239,6 +241,7 @@ func getInfoTabs() []string {
 func (m *Model) setInfoContent() {
 	dep := m.getCurrentDeployment()
 	if dep == nil {
+		m.infobar.SetContent("")
 		return
 	}
 	dep.Styles = m.app.Styles

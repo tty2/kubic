@@ -1,8 +1,6 @@
 package infobar
 
 import (
-	"fmt"
-
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
@@ -40,20 +38,26 @@ func (m *Model) Update(msg tea.Msg) (*Model, tea.Cmd) {
 	return m, nil
 }
 
+func (m *Model) ResetView() {
+	m.viewport.GotoTop()
+}
+
 func (m *Model) View() string {
-	// log.Println(m.width, m.height)
 	style := lipgloss.NewStyle().
 		Height(m.height).
 		MaxHeight(m.height).
 		Width(m.width).
 		MaxWidth(m.width)
 
+	var continueRead string
+	if m.viewport.ScrollPercent() < 1 {
+		continueRead = "..."
+	}
 	return style.Copy().Render(lipgloss.JoinVertical(
 		lipgloss.Top,
 		m.viewport.View(),
 		lipgloss.NewStyle().Height(percentHeight).
-			PaddingTop(percentPaddingTop).
-			Render(fmt.Sprintf("%d%%", int(m.viewport.ScrollPercent()*100))),
+			Render(continueRead),
 	))
 }
 
@@ -63,9 +67,8 @@ func (m *Model) SetContent(data string) {
 }
 
 func (m *Model) SetWH(w, h int) {
-	// log.Println("set", w, h)
 	m.width = w
-	m.height = h - percentHeight - percentPaddingTop
+	m.height = h - percentHeight
 	m.viewport.Width = w
-	m.viewport.Height = m.height
+	m.viewport.Height = m.height - percentPaddingTop
 }
