@@ -115,7 +115,7 @@ func (m *Model) View() string {
 	s.WriteString("\n")
 	s.WriteString(divider.HorizontalLine(m.app.GUI.ScreenWidth, m.app.Styles.InactiveText))
 	s.WriteString("\n")
-	m.list.SetHeight(m.app.GUI.Areas.MainContent.Height - tableHeaderHeight)
+	m.setContentHeight()
 
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -185,12 +185,6 @@ func (m *Model) resetFocus() {
 }
 
 func (m *Model) renderInfoBar() string {
-	// dep := m.getCurrentDeployment()
-
-	// var infoData string
-	// if dep != nil {
-	// 	infoData = dep.renderInfo()
-	// }
 	infoData := m.infobar.View()
 
 	if !m.infoInFocus() {
@@ -251,4 +245,12 @@ func (m *Model) setInfoContent() {
 	m.infobar.SetContent(
 		m.getCurrentDeployment().renderInfo(),
 	)
+}
+
+func (m *Model) setContentHeight() {
+	m.infobar.SetWH(
+		m.app.GUI.ScreenWidth-lipgloss.Width(getHeader()),
+		m.app.GUI.Areas.MainContent.Height-tableHeaderHeight,
+	)
+	m.list.SetHeight(m.app.GUI.Areas.MainContent.Height - tableHeaderHeight)
 }

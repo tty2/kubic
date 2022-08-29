@@ -27,6 +27,8 @@ const (
 	tableHeaderHeight  = 3
 )
 
+var boldText = lipgloss.NewStyle().Bold(true)
+
 type (
 	deployment struct {
 		Name              string
