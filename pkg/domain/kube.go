@@ -1,5 +1,7 @@
 package domain
 
+import "time"
+
 type Namespace struct {
 	Name   string
 	Status string
@@ -15,6 +17,7 @@ type Deployment struct {
 	Tolerations       int
 	Age               string
 	Labels            map[string]string
+	Created           time.Time
 	Meta              DeploymentMeta
 }
 

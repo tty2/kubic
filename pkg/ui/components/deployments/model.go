@@ -62,11 +62,12 @@ func New(app *shared.App, repo deploymentsRepo) (*Model, error) {
 	itemsModel.Paginator.Type = paginator.Dots
 	m.list = itemsModel
 	m.UpdateList()
+
 	m.app.AddUpdateNamespaceCallback(m.UpdateList)
 	m.app.AddUpdateNamespaceCallback(m.resetFocus)
 	m.app.AddUpdateNamespaceCallback(m.setInfoContent)
 
-	m.infobar.SetWH(app.GUI.ScreenWidth-lipgloss.Width(getHeader()), app.GUI.Areas.MainContent.Height-tableHeaderHeight)
+	m.setInfoBarHeight()
 
 	return &m, nil
 }
@@ -103,7 +104,7 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m *Model) View() string {
-	m.setContentHeight()
+	m.setInfoBarHeight()
 
 	var s strings.Builder
 	s.WriteString("\n")
@@ -147,6 +148,7 @@ func (m *Model) UpdateList() {
 	for i := range deps {
 		items[i] = &deployment{
 			Name:              deps[i].Name,
+			Created:           deps[i].Created,
 			Ready:             deps[i].Ready,
 			UpdatedReplicas:   deps[i].UpdatedReplicas,
 			AvailableReplicas: deps[i].AvailableReplicas,
@@ -194,7 +196,7 @@ func (m *Model) renderInfoBar() string {
 	}
 
 	info := lipgloss.JoinVertical(lipgloss.Left,
-		m.renderInfoTitleBar(),
+		m.renderInfoBarTabs(),
 		infoData,
 	)
 
@@ -211,7 +213,7 @@ func (m *Model) getCurrentDeployment() *deployment {
 	return dep
 }
 
-func (m *Model) renderInfoTitleBar() string {
+func (m *Model) renderInfoBarTabs() string {
 	tabs := getInfoTabs()
 	titles := make([]string, len(tabs))
 	for i := range tabs {
@@ -234,10 +236,6 @@ func (m *Model) renderInfoTitleBar() string {
 	return lipgloss.JoinHorizontal(lipgloss.Bottom, titlesStr, gap)
 }
 
-func getInfoTabs() []string {
-	return []string{"Info"}
-}
-
 func (m *Model) setInfoContent() {
 	dep := m.getCurrentDeployment()
 	if dep == nil {
@@ -251,10 +249,14 @@ func (m *Model) setInfoContent() {
 	)
 }
 
-func (m *Model) setContentHeight() {
+func (m *Model) setInfoBarHeight() {
 	m.infobar.SetWH(
 		m.app.GUI.ScreenWidth-lipgloss.Width(getHeader()),
 		m.app.GUI.Areas.MainContent.Height-tableHeaderHeight,
 	)
 	m.list.SetHeight(m.app.GUI.Areas.MainContent.Height - tableHeaderHeight)
+}
+
+func getInfoTabs() []string {
+	return []string{"Info"}
 }

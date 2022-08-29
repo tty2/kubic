@@ -42,12 +42,6 @@ func New(k8sClient *k8s.Client, theme themes.Theme) (tea.Model, error) {
 		},
 	}
 
-	model.app.GUI.ScreenWidth, model.app.GUI.ScreenHeight, err = term.GetSize(int(os.Stdout.Fd()))
-	if err != nil {
-		return nil, err
-	}
-	model.app.ResizeAreas()
-
 	ns, err := namespaces.New(app, k8sClient)
 	if err != nil {
 		return nil, err
@@ -65,6 +59,12 @@ func New(k8sClient *k8s.Client, theme themes.Theme) (tea.Model, error) {
 		return nil, err
 	}
 	model.components.pods = pod
+
+	model.app.GUI.ScreenWidth, model.app.GUI.ScreenHeight, err = term.GetSize(int(os.Stdout.Fd()))
+	if err != nil {
+		return nil, err
+	}
+	model.app.ResizeAreas()
 
 	return &model, nil
 }

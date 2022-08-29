@@ -12,6 +12,8 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 )
 
+const snapshotFormat = "2006-01-02 15:04:05"
+
 type Client struct {
 	Set *kubernetes.Clientset
 }
@@ -69,6 +71,7 @@ func (c *Client) GetDeployments(ctx context.Context, namespace string) ([]domain
 		deps[i].Age = ageToString(age)
 
 		deps[i].Labels = apiResp.Items[i].Labels
+		deps[i].Created = apiResp.Items[i].ObjectMeta.CreationTimestamp.Time
 
 		// populate meta
 		deps[i].Meta.Strategy = string(apiResp.Items[i].Spec.Strategy.Type)

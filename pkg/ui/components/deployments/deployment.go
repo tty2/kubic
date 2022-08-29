@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"strings"
+	"time"
 
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
@@ -25,6 +26,7 @@ const (
 	upToDateColumnLen  = len(upToDateHeader)
 	availableColumnLen = len(availableHeader)
 	tableHeaderHeight  = 3
+	snapshotFormat     = "2006-01-02 15:04:05"
 )
 
 // nolint gochecknoglobals: used here on purpose
@@ -41,6 +43,7 @@ type (
 		Age               string
 		Labels            map[string]string
 		Styles            *themes.Styles
+		Created           time.Time
 		Meta              domain.DeploymentMeta
 	}
 )
@@ -121,6 +124,11 @@ func (d *deployment) renderInfo() string {
 	info.WriteString("\n")
 	info.WriteString(minColumnGap)
 	info.WriteString(d.Name)
+	info.WriteString("\n")
+	info.WriteString(boldText.Render("Created"))
+	info.WriteString("\n")
+	info.WriteString(minColumnGap)
+	info.WriteString(d.Created.Format(snapshotFormat))
 	info.WriteString("\n")
 	info.WriteString(boldText.Render("Labels"))
 	info.WriteString("\n")
