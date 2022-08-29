@@ -12,8 +12,6 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 )
 
-const snapshotFormat = "2006-01-02 15:04:05"
-
 type Client struct {
 	Set *kubernetes.Clientset
 }
