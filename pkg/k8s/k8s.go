@@ -76,17 +76,7 @@ func (c *Client) GetDeployments(ctx context.Context, namespace string) ([]domain
 		deps[i].Meta.RestartPolicy = string(apiResp.Items[i].Spec.Template.Spec.RestartPolicy)
 		deps[i].Meta.SchedulerName = apiResp.Items[i].Spec.Template.Spec.SchedulerName
 		deps[i].Meta.TerminationGracePeriodSeconds = *apiResp.Items[i].Spec.Template.Spec.TerminationGracePeriodSeconds
-
-		deps[i].Meta.Containers = make([]domain.Container, len(apiResp.Items[i].Spec.Template.Spec.Containers))
-		for j, c := range apiResp.Items[i].Spec.Template.Spec.Containers {
-			deps[i].Meta.Containers[j] = domain.Container{
-				Name:                   c.Name,
-				Image:                  c.Image,
-				ImagePullPolicy:        string(c.ImagePullPolicy),
-				TerminationMessagePath: c.TerminationMessagePath,
-				ENVs:                   getEnvs(c.Env),
-			}
-		}
+		deps[i].Meta.Containers = toDomainContainers(apiResp.Items[i].Spec.Template.Spec.Containers)
 	}
 
 	return deps, nil
@@ -176,4 +166,17 @@ func getEnvs(envs []corev1.EnvVar) []domain.ContainerEnv {
 	}
 
 	return cEnvs
+}
+
+func toDomainContainers(cc []corev1.Container) []domain.Container {
+	domainContainers := make([]domain.Container, len(cc))
+	for i := range cc {
+		domainContainers[i].Name = cc[i].Name
+		domainContainers[i].Image = cc[i].Image
+		domainContainers[i].ImagePullPolicy = string(cc[i].ImagePullPolicy)
+		domainContainers[i].TerminationMessagePath = cc[i].TerminationMessagePath
+		domainContainers[i].ENVs = getEnvs(cc[i].Env)
+	}
+
+	return domainContainers
 }

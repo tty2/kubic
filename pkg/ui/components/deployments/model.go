@@ -242,6 +242,7 @@ func (m *Model) setInfoContent() {
 	dep := m.getCurrentDeployment()
 	if dep == nil {
 		m.infobar.SetContent("")
+
 		return
 	}
 	dep.Styles = m.app.Styles

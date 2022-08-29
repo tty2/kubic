@@ -9,6 +9,7 @@ type keyMap struct {
 	Down key.Binding
 }
 
+// nolint gochecknoglobals: used here on purpose
 var keys = keyMap{
 	Up: key.NewBinding(
 		key.WithKeys("up", "k"),

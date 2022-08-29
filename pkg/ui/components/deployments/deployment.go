@@ -27,6 +27,7 @@ const (
 	tableHeaderHeight  = 3
 )
 
+// nolint gochecknoglobals: used here on purpose
 var boldText = lipgloss.NewStyle().Bold(true)
 
 type (
@@ -146,59 +147,74 @@ func (d *deployment) renderInfo() string {
 	info.WriteString(minColumnGap)
 	info.WriteString(fmt.Sprintf("Total: %d\n", d.Tolerations))
 
+	info.WriteString(renderMeta(d.Meta))
+	info.WriteString(renderContainersInfo(d.Meta.Containers))
+
+	return info.String()
+}
+
+func renderMeta(meta domain.DeploymentMeta) string {
+	var info strings.Builder
+
 	info.WriteString(boldText.Render("Strategy"))
 	info.WriteString("\n")
 	info.WriteString(minColumnGap)
-	info.WriteString(d.Meta.Strategy)
+	info.WriteString(meta.Strategy)
 	info.WriteString("\n")
 
 	info.WriteString(boldText.Render("DNS Policy"))
 	info.WriteString("\n")
 	info.WriteString(minColumnGap)
-	info.WriteString(d.Meta.DNSPolicy)
+	info.WriteString(meta.DNSPolicy)
 	info.WriteString("\n")
 
 	info.WriteString(boldText.Render("Restart Policy"))
 	info.WriteString("\n")
 	info.WriteString(minColumnGap)
-	info.WriteString(d.Meta.RestartPolicy)
+	info.WriteString(meta.RestartPolicy)
 	info.WriteString("\n")
 
 	info.WriteString(boldText.Render("Scheduler"))
 	info.WriteString("\n")
 	info.WriteString(minColumnGap)
-	info.WriteString(d.Meta.SchedulerName)
+	info.WriteString(meta.SchedulerName)
 	info.WriteString("\n")
 
 	info.WriteString(boldText.Render("Termination Grace Period"))
 	info.WriteString("\n")
 	info.WriteString(minColumnGap)
-	info.WriteString(fmt.Sprintf("%d seconds", d.Meta.TerminationGracePeriodSeconds))
+	info.WriteString(fmt.Sprintf("%d seconds", meta.TerminationGracePeriodSeconds))
 	info.WriteString("\n")
+
+	return info.String()
+}
+
+func renderContainersInfo(cc []domain.Container) string {
+	var info strings.Builder
 
 	info.WriteString(boldText.Render("Containers"))
 	info.WriteString("\n")
-	for i := range d.Meta.Containers {
+	for i := range cc {
 		info.WriteString(minColumnGap)
-		info.WriteString(fmt.Sprintf("Name: %s", d.Meta.Containers[i].Name))
+		info.WriteString(fmt.Sprintf("Name: %s", cc[i].Name))
 		info.WriteString("\n")
 		info.WriteString(minColumnGap)
-		info.WriteString(fmt.Sprintf("Image: %s", d.Meta.Containers[i].Image))
+		info.WriteString(fmt.Sprintf("Image: %s", cc[i].Image))
 		info.WriteString("\n")
 		info.WriteString(minColumnGap)
-		info.WriteString(fmt.Sprintf("Policy: %s", d.Meta.Containers[i].ImagePullPolicy))
+		info.WriteString(fmt.Sprintf("Policy: %s", cc[i].ImagePullPolicy))
 		info.WriteString("\n")
 		info.WriteString(minColumnGap)
-		info.WriteString(fmt.Sprintf("Termination message path: %s", d.Meta.Containers[i].TerminationMessagePath))
+		info.WriteString(fmt.Sprintf("Termination message path: %s", cc[i].TerminationMessagePath))
 		info.WriteString("\n")
 		info.WriteString(minColumnGap)
-		if len(d.Meta.Containers[i].ENVs) > 0 {
+		if len(cc[i].ENVs) > 0 {
 			info.WriteString(boldText.Render("Envs"))
 			info.WriteString("\n")
-			for j := range d.Meta.Containers[i].ENVs {
+			for j := range cc[i].ENVs {
 				info.WriteString(minColumnGap)
 				info.WriteString(minColumnGap)
-				info.WriteString(d.Meta.Containers[i].ENVs[j].Name)
+				info.WriteString(cc[i].ENVs[j].Name)
 				info.WriteString("\n")
 			}
 		}

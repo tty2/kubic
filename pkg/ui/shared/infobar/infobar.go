@@ -24,8 +24,7 @@ func New() *Model {
 }
 
 func (m *Model) Update(msg tea.Msg) (*Model, tea.Cmd) {
-	switch msg := msg.(type) {
-	case tea.KeyMsg:
+	if msg, ok := msg.(tea.KeyMsg); ok {
 		switch {
 		case key.Matches(msg, keys.Down):
 			m.viewport.HalfViewDown()
@@ -53,6 +52,7 @@ func (m *Model) View() string {
 	if m.viewport.ScrollPercent() < 1 {
 		continueRead = "..."
 	}
+
 	return style.Copy().Render(lipgloss.JoinVertical(
 		lipgloss.Top,
 		m.viewport.View(),
