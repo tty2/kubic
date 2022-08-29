@@ -8,11 +8,11 @@ import (
 )
 
 const (
-	percentHeight = 2
+	continueReadHeight  = 2
+	continueReadPadding = 1
 )
 
 type Model struct {
-	data     string
 	width    int
 	height   int
 	viewport viewport.Model
@@ -55,19 +55,17 @@ func (m *Model) View() string {
 	return style.Copy().Render(lipgloss.JoinVertical(
 		lipgloss.Top,
 		m.viewport.View(),
-		lipgloss.NewStyle().Height(percentHeight).
-			Render(continueRead),
+		lipgloss.NewStyle().Height(continueReadHeight).Render(continueRead),
 	))
 }
 
 func (m *Model) SetContent(data string) {
-	m.data = data
 	m.viewport.SetContent(data)
 }
 
 func (m *Model) SetWH(w, h int) {
 	m.width = w
-	m.height = h - percentHeight
+	m.height = h - continueReadHeight
 	m.viewport.Width = w
-	m.viewport.Height = m.height - 1
+	m.viewport.Height = m.height - continueReadPadding
 }
