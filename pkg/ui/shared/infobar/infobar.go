@@ -8,8 +8,7 @@ import (
 )
 
 const (
-	percentPaddingTop = 1
-	percentHeight     = 2
+	percentHeight = 2
 )
 
 type Model struct {
@@ -70,5 +69,5 @@ func (m *Model) SetWH(w, h int) {
 	m.width = w
 	m.height = h - percentHeight
 	m.viewport.Width = w
-	m.viewport.Height = m.height - percentPaddingTop
+	m.viewport.Height = m.height - 1
 }
