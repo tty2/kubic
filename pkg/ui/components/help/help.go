@@ -61,9 +61,17 @@ func (m *Model) View() string {
 	s.WriteString(divider.HorizontalLine(m.app.GUI.ScreenWidth, m.app.Styles.InactiveText))
 	s.WriteString("\n")
 	if m.help.ShowAll {
-		s.WriteString(m.help.FullHelpView(m.app.KeyMap.FullHelp()))
+		if m.app.CurrentTab == shared.NamespacesTab {
+			s.WriteString(m.help.FullHelpView(m.app.KeyMap.FullHelp()))
+		} else {
+			s.WriteString(m.help.FullHelpView(m.app.KeyMap.FullWithFocus()))
+		}
 	} else {
-		s.WriteString(m.help.ShortHelpView(m.app.KeyMap.ShortHelp()))
+		if m.app.CurrentTab == shared.NamespacesTab {
+			s.WriteString(m.help.ShortHelpView(m.app.KeyMap.ShortHelp()))
+		} else {
+			s.WriteString(m.help.ShortHelpView(m.app.KeyMap.ShortWithFocus()))
+		}
 	}
 	m.help.Width = m.app.GUI.ScreenWidth
 
