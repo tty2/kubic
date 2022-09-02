@@ -28,11 +28,6 @@ Different color scheme example.
 
 <img src="assets/theme.png" width="700">
 
-Namespaces info (implemented with v0.0.2)
-
-<img src="assets/ns.png" width="700">
-<img src="assets/ns2.png" width="700">
-
 ## Requirements
 
 - kubernetes `config` file
