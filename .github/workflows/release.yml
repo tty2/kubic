@@ -1,27 +1,29 @@
+# It is commented because release with `UPX` tool takes too much time and github actions throws error.
+# Or github block actions for my account. I have to run release build from local machine.
 # release workflow
-name: release
+# name: release
 
-on:
-  push:
-    tags:
-      - 'v*'
+# on:
+#   push:
+#     tags:
+#       - 'v*'
 
-jobs:
-  release:
-    runs-on: ubuntu-latest
-    steps:
-      - name: checkout
-        uses: actions/checkout@v3
-      - name: set up golang
-        uses: actions/setup-go@v3
-        with:
-          go-version: ^1.19
-          check-latest: true
-          cache: true
-      - name: build
-        uses: goreleaser/goreleaser-action@v3
-        with:
-          version: latest
-          args: release -f .goreleaser.yml --timeout 60m --rm-dist
-        env:
-          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+# jobs:
+#   release:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: checkout
+#         uses: actions/checkout@v3
+#       - name: set up golang
+#         uses: actions/setup-go@v3
+#         with:
+#           go-version: ^1.19
+#           check-latest: true
+#           cache: true
+#       - name: build
+#         uses: goreleaser/goreleaser-action@v3
+#         with:
+#           version: latest
+#           args: release -f .goreleaser.yml --timeout 60m --rm-dist
+#         env:
+#           GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}

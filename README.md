@@ -36,6 +36,8 @@ The best way is to keep it in `~/.kube/config` path. But you can set path on run
 
 ## Installation
 
+### From release
+
 - Download archive from Releases
 - Extract archive
 
@@ -43,6 +45,22 @@ The best way is to keep it in `~/.kube/config` path. But you can set path on run
 chmod +x kubic
 mv kubic ~/.local/bin
 ```
+
+Unfortunately I don't have apple developer account currently, so binary for mac os have problems with gatekeeper.
+Try build manually (next way).
+
+### Build manually
+
+```shell
+git clone git@github.com:tty2/kubic.git
+```
+
+```shell
+go build
+```
+
+
+Put `kubic` binary to your favorite `*/bin` path (Check with `echo $PATH`).
 
 ## Run
 
