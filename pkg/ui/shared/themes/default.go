@@ -134,12 +134,12 @@ func GetStyle(theme Theme) Styles {
 		ActiveInfoTab: lipgloss.NewStyle().
 			Border(infoBorder, false, false, true, false).
 			Foreground(theme.SelectedText).
-			BorderForeground(theme.SelectedText),
+			BorderForeground(theme.SelectedText).Padding(0, 1),
 
 		InactiveInfoTab: lipgloss.NewStyle().
 			Border(infoBorder, false, false, true, false).
 			Foreground(theme.InactiveText).
-			BorderForeground(theme.InactiveText),
+			BorderForeground(theme.InactiveText).Padding(0, 1),
 
 		InfoGap: lipgloss.NewStyle().
 			Border(infoBorder, false, false, true, false).

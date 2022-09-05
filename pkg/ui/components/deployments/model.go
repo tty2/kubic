@@ -14,7 +14,7 @@ import (
 	"github.com/tty2/kubic/pkg/domain"
 	"github.com/tty2/kubic/pkg/ui/shared"
 	"github.com/tty2/kubic/pkg/ui/shared/elements/divider"
-	"github.com/tty2/kubic/pkg/ui/shared/infobar"
+	"github.com/tty2/kubic/pkg/ui/shared/elements/infobar"
 )
 
 type focused int

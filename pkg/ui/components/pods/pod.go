@@ -26,6 +26,9 @@ const (
 	tableHeaderHeight = 3
 )
 
+// nolint gochecknoglobals: used here on purpose
+var boldText = lipgloss.NewStyle().Bold(true)
+
 type (
 	pod struct {
 		Name     string
@@ -105,4 +108,14 @@ func getHeader() string {
 	header.WriteString(ageHeader)
 
 	return header.String()
+}
+
+func (p *pod) renderInfo() string {
+	var info strings.Builder
+	info.WriteString(boldText.Render("Name"))
+	info.WriteString("\n")
+	info.WriteString(minColumnGap)
+	info.WriteString(p.Name)
+
+	return info.String()
 }
