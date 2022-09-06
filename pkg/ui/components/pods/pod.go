@@ -8,6 +8,7 @@ import (
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/tty2/kubic/pkg/domain"
 	"github.com/tty2/kubic/pkg/ui/shared"
 	"github.com/tty2/kubic/pkg/ui/shared/themes"
 )
@@ -31,13 +32,15 @@ var boldText = lipgloss.NewStyle().Bold(true)
 
 type (
 	pod struct {
-		Name     string
-		Ready    string
-		Status   string
-		Restarts int
-		Age      string
-		Labels   map[string]string
-		Styles   *themes.Styles
+		Name       string
+		Ready      string
+		Status     string
+		Restarts   int
+		Age        string
+		Meta       domain.PodMeta
+		Spec       domain.PodSpec
+		StatusInfo domain.PodStatusInfo
+		Styles     *themes.Styles
 	}
 )
 

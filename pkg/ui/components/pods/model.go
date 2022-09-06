@@ -148,12 +148,14 @@ func (m *Model) UpdateList() {
 	items := make([]list.Item, len(pods))
 	for i := range pods {
 		items[i] = &pod{
-			Name:     pods[i].Name,
-			Ready:    pods[i].Ready,
-			Status:   pods[i].Status,
-			Restarts: pods[i].Restarts,
-			Labels:   pods[i].Labels,
-			Age:      pods[i].Age,
+			Name:       pods[i].Name,
+			Ready:      pods[i].Ready,
+			Status:     pods[i].Status,
+			Restarts:   pods[i].Restarts,
+			Age:        pods[i].Age,
+			Meta:       pods[i].Meta,
+			Spec:       pods[i].Spec,
+			StatusInfo: pods[i].StatusInfo,
 		}
 	}
 
