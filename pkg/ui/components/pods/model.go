@@ -224,6 +224,7 @@ func (m *Model) renderInfoBarTabs() string {
 	for i := range tabs {
 		if m.focused == tabs[i] {
 			titles[i] = m.app.Styles.ActiveInfoTab.Render(tabs[i].String())
+
 			continue
 		}
 		titles[i] = m.app.Styles.InactiveInfoTab.Render(tabs[i].String())

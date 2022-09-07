@@ -255,5 +255,6 @@ func renderStatusInfo(si domain.PodStatusInfo) string {
 	info.WriteString("\n")
 	info.WriteString(minColumnGap)
 	info.WriteString(strings.Join(si.Conditions, ", "))
+
 	return info.String()
 }
