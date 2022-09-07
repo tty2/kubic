@@ -26,7 +26,6 @@ const (
 	upToDateColumnLen  = len(upToDateHeader)
 	availableColumnLen = len(availableHeader)
 	tableHeaderHeight  = 3
-	snapshotFormat     = "2006-01-02 15:04:05"
 )
 
 // nolint gochecknoglobals: used here on purpose
@@ -128,7 +127,7 @@ func (d *deployment) renderInfo() string {
 	info.WriteString(boldText.Render("Created"))
 	info.WriteString("\n")
 	info.WriteString(minColumnGap)
-	info.WriteString(d.Created.Format(snapshotFormat))
+	info.WriteString(d.Created.Format(shared.TimeFormat))
 	info.WriteString("\n")
 	info.WriteString(boldText.Render("Labels"))
 	info.WriteString("\n")

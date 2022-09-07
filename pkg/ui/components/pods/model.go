@@ -184,14 +184,6 @@ func (m *Model) listInFocus() bool {
 	return m.focused == listInFocus
 }
 
-func (m *Model) infoInFocus() bool {
-	return m.focused == infoInFocus
-}
-
-func (m *Model) logInFocus() bool {
-	return m.focused == logInFocus
-}
-
 func (m *Model) resetFocus() {
 	m.focused = listInFocus
 	m.list.ResetSelected()
@@ -203,8 +195,9 @@ func (m *Model) renderInfoBar() string {
 	case listInFocus:
 		infoData := m.infobar.View()
 		infoBarData = m.app.Styles.InactiveText.Render(infoData)
-	case infoInFocus, logInFocus:
+	case infoInFocus:
 		infoBarData = m.infobar.View()
+	case logInFocus:
 	}
 
 	info := lipgloss.JoinVertical(lipgloss.Left,
