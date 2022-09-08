@@ -31,6 +31,10 @@ run: ## Run without building
 	@echo -e "\033[2m→ Running without building...\033[0m"
 	go run main.go
 
+release: ## Release version with last tag from local machine.
+	@echo -e "\033[2m→ Release last version...\033[0m"
+	goreleaser release --timeout 60m
+
 ##@ Other
 #------------------------------------------------------------------------------
 help:  ## Display help
