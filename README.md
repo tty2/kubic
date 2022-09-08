@@ -128,7 +128,7 @@ Classes are predefined. Set your own color with hex.
 - [x] Deployments list (kubectl get deployments --namespace=ns)
 - [x] Pods list (kubectl get pods --namespace=ns)
 - [x] Deployment info (kubectl get deployment deployment-name --namespace=ns -o=json)
-- [ ] Pod info (kubectl get pods pod-name --namespace=ns -o=json)
+- [x] Pod info (kubectl get pods pod-name --namespace=ns -o=json)
 - [ ] Pod logs (kkubectl logs pod-name --namespace=ns)
 
 ***
