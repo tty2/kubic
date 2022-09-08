@@ -153,16 +153,16 @@ func (p *pod) renderInfo() string {
 func renderSpec(spec domain.PodSpec) string {
 	var info strings.Builder
 
-	info.WriteString(boldText.Render("DNS policy"))
-	info.WriteString("\n")
-	info.WriteString(minColumnGap)
-	info.WriteString(spec.DNSPolicy)
-	info.WriteString("\n")
-
 	info.WriteString(boldText.Render("Restart policy"))
 	info.WriteString("\n")
 	info.WriteString(minColumnGap)
 	info.WriteString(spec.RestartPolicy)
+	info.WriteString("\n")
+
+	info.WriteString(boldText.Render("DNS policy"))
+	info.WriteString("\n")
+	info.WriteString(minColumnGap)
+	info.WriteString(spec.DNSPolicy)
 	info.WriteString("\n")
 
 	info.WriteString(boldText.Render("Scheduler"))
@@ -200,8 +200,8 @@ func renderContainersInfo(cc []domain.Container) string {
 		info.WriteString(minColumnGap)
 		info.WriteString(fmt.Sprintf("Termination message path: %s", cc[i].TerminationMessagePath))
 		info.WriteString("\n")
-		info.WriteString(minColumnGap)
 		if len(cc[i].ENVs) > 0 {
+			info.WriteString(minColumnGap)
 			info.WriteString(boldText.Render("Envs"))
 			info.WriteString("\n")
 			for j := range cc[i].ENVs {

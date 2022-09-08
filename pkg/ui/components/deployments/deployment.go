@@ -169,16 +169,16 @@ func renderMeta(meta domain.DeploymentMeta) string {
 	info.WriteString(meta.Strategy)
 	info.WriteString("\n")
 
-	info.WriteString(boldText.Render("DNS Policy"))
-	info.WriteString("\n")
-	info.WriteString(minColumnGap)
-	info.WriteString(meta.DNSPolicy)
-	info.WriteString("\n")
-
 	info.WriteString(boldText.Render("Restart Policy"))
 	info.WriteString("\n")
 	info.WriteString(minColumnGap)
 	info.WriteString(meta.RestartPolicy)
+	info.WriteString("\n")
+
+	info.WriteString(boldText.Render("DNS Policy"))
+	info.WriteString("\n")
+	info.WriteString(minColumnGap)
+	info.WriteString(meta.DNSPolicy)
 	info.WriteString("\n")
 
 	info.WriteString(boldText.Render("Scheduler"))
@@ -214,8 +214,8 @@ func renderContainersInfo(cc []domain.Container) string {
 		info.WriteString(minColumnGap)
 		info.WriteString(fmt.Sprintf("Termination message path: %s", cc[i].TerminationMessagePath))
 		info.WriteString("\n")
-		info.WriteString(minColumnGap)
 		if len(cc[i].ENVs) > 0 {
+			info.WriteString(minColumnGap)
 			info.WriteString(boldText.Render("Envs"))
 			info.WriteString("\n")
 			for j := range cc[i].ENVs {
