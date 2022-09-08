@@ -2,12 +2,6 @@ package domain
 
 import "time"
 
-type Namespace struct {
-	Name   string
-	Status string
-	Age    string
-}
-
 type Deployment struct {
 	Name              string
 	Ready             string
@@ -28,26 +22,4 @@ type DeploymentMeta struct {
 	SchedulerName                 string
 	TerminationGracePeriodSeconds int64
 	Containers                    []Container
-}
-
-type Container struct {
-	Name                   string
-	Image                  string
-	ImagePullPolicy        string
-	TerminationMessagePath string
-	ENVs                   []ContainerEnv
-}
-
-type ContainerEnv struct {
-	Name  string
-	Value string
-}
-
-type Pod struct {
-	Name     string
-	Ready    string
-	Status   string
-	Restarts int
-	Age      string
-	Labels   map[string]string
 }

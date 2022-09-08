@@ -7,7 +7,10 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-const ellipsis = "…"
+const (
+	ellipsis   = "…"
+	TimeFormat = "2006-01-02 15:04:05"
+)
 
 // Max returns max of two integers.
 func Max(a, b int) int {

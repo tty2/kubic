@@ -8,6 +8,7 @@ import (
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/tty2/kubic/pkg/domain"
 	"github.com/tty2/kubic/pkg/ui/shared"
 	"github.com/tty2/kubic/pkg/ui/shared/themes"
 )
@@ -26,15 +27,20 @@ const (
 	tableHeaderHeight = 3
 )
 
+// nolint gochecknoglobals: used here on purpose
+var boldText = lipgloss.NewStyle().Bold(true)
+
 type (
 	pod struct {
-		Name     string
-		Ready    string
-		Status   string
-		Restarts int
-		Age      string
-		Labels   map[string]string
-		Styles   *themes.Styles
+		Name       string
+		Ready      string
+		Status     string
+		Restarts   int
+		Age        string
+		Meta       domain.PodMeta
+		Spec       domain.PodSpec
+		StatusInfo domain.PodStatusInfo
+		Styles     *themes.Styles
 	}
 )
 
@@ -105,4 +111,150 @@ func getHeader() string {
 	header.WriteString(ageHeader)
 
 	return header.String()
+}
+
+func (p *pod) renderInfo() string {
+	var info strings.Builder
+	info.WriteString(boldText.Render("Name"))
+	info.WriteString("\n")
+	info.WriteString(minColumnGap)
+	info.WriteString(p.Name)
+
+	info.WriteString("\n")
+	info.WriteString(boldText.Render("Created"))
+	info.WriteString("\n")
+	info.WriteString(minColumnGap)
+	info.WriteString(p.Meta.Created.Format(shared.TimeFormat))
+	info.WriteString("\n")
+	info.WriteString(boldText.Render("Labels"))
+	info.WriteString("\n")
+
+	for k, v := range p.Meta.Labels {
+		info.WriteString(minColumnGap)
+		info.WriteString(k)
+		info.WriteString(": ")
+		info.WriteString(v)
+		info.WriteString("\n")
+	}
+
+	info.WriteString(boldText.Render("Restarts"))
+	info.WriteString("\n")
+	info.WriteString(minColumnGap)
+	info.WriteString(fmt.Sprint(p.Restarts))
+	info.WriteString("\n")
+
+	info.WriteString(renderSpec(p.Spec))
+
+	info.WriteString(renderStatusInfo(p.StatusInfo))
+
+	return info.String()
+}
+
+func renderSpec(spec domain.PodSpec) string {
+	var info strings.Builder
+
+	info.WriteString(boldText.Render("Restart policy"))
+	info.WriteString("\n")
+	info.WriteString(minColumnGap)
+	info.WriteString(spec.RestartPolicy)
+	info.WriteString("\n")
+
+	info.WriteString(boldText.Render("DNS policy"))
+	info.WriteString("\n")
+	info.WriteString(minColumnGap)
+	info.WriteString(spec.DNSPolicy)
+	info.WriteString("\n")
+
+	info.WriteString(boldText.Render("Scheduler"))
+	info.WriteString("\n")
+	info.WriteString(minColumnGap)
+	info.WriteString(spec.SchedulerName)
+	info.WriteString("\n")
+
+	info.WriteString(boldText.Render("Termination graceful period"))
+	info.WriteString("\n")
+	info.WriteString(minColumnGap)
+	info.WriteString(fmt.Sprintf("%d sec", spec.TerminationGracePeriodSeconds))
+	info.WriteString("\n")
+
+	info.WriteString(renderContainersInfo(spec.Containers))
+
+	return info.String()
+}
+
+func renderContainersInfo(cc []domain.Container) string {
+	var info strings.Builder
+
+	info.WriteString(boldText.Render("Containers"))
+	info.WriteString("\n")
+	for i := range cc {
+		info.WriteString(minColumnGap)
+		info.WriteString(fmt.Sprintf("Name: %s", cc[i].Name))
+		info.WriteString("\n")
+		info.WriteString(minColumnGap)
+		info.WriteString(fmt.Sprintf("Image: %s", cc[i].Image))
+		info.WriteString("\n")
+		info.WriteString(minColumnGap)
+		info.WriteString(fmt.Sprintf("Policy: %s", cc[i].ImagePullPolicy))
+		info.WriteString("\n")
+		info.WriteString(minColumnGap)
+		info.WriteString(fmt.Sprintf("Termination message path: %s", cc[i].TerminationMessagePath))
+		info.WriteString("\n")
+		if len(cc[i].ENVs) > 0 {
+			info.WriteString(minColumnGap)
+			info.WriteString(boldText.Render("Envs"))
+			info.WriteString("\n")
+			for j := range cc[i].ENVs {
+				info.WriteString(minColumnGap)
+				info.WriteString(minColumnGap)
+				info.WriteString(cc[i].ENVs[j].Name)
+				info.WriteString("\n")
+			}
+		}
+	}
+
+	return info.String()
+}
+
+func renderStatusInfo(si domain.PodStatusInfo) string {
+	var info strings.Builder
+
+	info.WriteString(boldText.Render("Phase"))
+	info.WriteString("\n")
+	info.WriteString(minColumnGap)
+	info.WriteString(si.Phase)
+	info.WriteString("\n")
+
+	info.WriteString(boldText.Render("QOS Class"))
+	info.WriteString("\n")
+	info.WriteString(minColumnGap)
+	info.WriteString(si.QosClass)
+	info.WriteString("\n")
+
+	info.WriteString(boldText.Render("Host IP"))
+	info.WriteString("\n")
+	info.WriteString(minColumnGap)
+	info.WriteString(si.HostIP)
+	info.WriteString("\n")
+
+	info.WriteString(boldText.Render("Pod IP"))
+	info.WriteString("\n")
+	info.WriteString(minColumnGap)
+	info.WriteString(si.PodIP)
+	info.WriteString("\n")
+
+	info.WriteString(boldText.Render("Pod IPs"))
+	info.WriteString("\n")
+	for i := range si.PodIPs {
+		info.WriteString(minColumnGap)
+		info.WriteString(si.PodIPs[i])
+		info.WriteString("\n")
+	}
+
+	info.WriteString(boldText.Render("Conditions"))
+	info.WriteString("\n")
+	info.WriteString(minColumnGap)
+	info.WriteString(strings.Join(si.Conditions, ", "))
+
+	return info.String()
 }

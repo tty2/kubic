@@ -26,7 +26,6 @@ const (
 	upToDateColumnLen  = len(upToDateHeader)
 	availableColumnLen = len(availableHeader)
 	tableHeaderHeight  = 3
-	snapshotFormat     = "2006-01-02 15:04:05"
 )
 
 // nolint gochecknoglobals: used here on purpose
@@ -128,7 +127,7 @@ func (d *deployment) renderInfo() string {
 	info.WriteString(boldText.Render("Created"))
 	info.WriteString("\n")
 	info.WriteString(minColumnGap)
-	info.WriteString(d.Created.Format(snapshotFormat))
+	info.WriteString(d.Created.Format(shared.TimeFormat))
 	info.WriteString("\n")
 	info.WriteString(boldText.Render("Labels"))
 	info.WriteString("\n")
@@ -170,16 +169,16 @@ func renderMeta(meta domain.DeploymentMeta) string {
 	info.WriteString(meta.Strategy)
 	info.WriteString("\n")
 
-	info.WriteString(boldText.Render("DNS Policy"))
-	info.WriteString("\n")
-	info.WriteString(minColumnGap)
-	info.WriteString(meta.DNSPolicy)
-	info.WriteString("\n")
-
 	info.WriteString(boldText.Render("Restart Policy"))
 	info.WriteString("\n")
 	info.WriteString(minColumnGap)
 	info.WriteString(meta.RestartPolicy)
+	info.WriteString("\n")
+
+	info.WriteString(boldText.Render("DNS Policy"))
+	info.WriteString("\n")
+	info.WriteString(minColumnGap)
+	info.WriteString(meta.DNSPolicy)
 	info.WriteString("\n")
 
 	info.WriteString(boldText.Render("Scheduler"))
@@ -215,8 +214,8 @@ func renderContainersInfo(cc []domain.Container) string {
 		info.WriteString(minColumnGap)
 		info.WriteString(fmt.Sprintf("Termination message path: %s", cc[i].TerminationMessagePath))
 		info.WriteString("\n")
-		info.WriteString(minColumnGap)
 		if len(cc[i].ENVs) > 0 {
+			info.WriteString(minColumnGap)
 			info.WriteString(boldText.Render("Envs"))
 			info.WriteString("\n")
 			for j := range cc[i].ENVs {

@@ -83,10 +83,6 @@ func (c *Client) GetDeployments(ctx context.Context, namespace string) ([]domain
 	return deps, nil
 }
 
-func (c *Client) DeploymentInfo(ctx context.Context, namespace, name string) (domain.Deployment, error) {
-	return domain.Deployment{}, nil
-}
-
 func (c *Client) GetPods(ctx context.Context, namespace string) ([]domain.Pod, error) {
 	apiResp, err := c.Set.CoreV1().Pods(namespace).List(ctx, metav1.ListOptions{})
 	if err != nil {
@@ -103,14 +99,28 @@ func (c *Client) GetPods(ctx context.Context, namespace string) ([]domain.Pod, e
 		age := time.Now().Unix() - apiResp.Items[i].GetCreationTimestamp().Unix()
 		pods[i].Age = ageToString(age)
 
-		pods[i].Labels = apiResp.Items[i].Labels
+		// populate meta
+		pods[i].Meta.Created = apiResp.Items[i].CreationTimestamp.Time
+		pods[i].Meta.Labels = apiResp.Items[i].Labels
+		pods[i].Meta.Owners = toDomainOwnerInfoList(apiResp.Items[i].OwnerReferences)
+
+		// populate spec
+		pods[i].Spec.DNSPolicy = string(apiResp.Items[i].Spec.DNSPolicy)
+		pods[i].Spec.RestartPolicy = string(apiResp.Items[i].Spec.RestartPolicy)
+		pods[i].Spec.SchedulerName = apiResp.Items[i].Spec.SchedulerName
+		pods[i].Spec.TerminationGracePeriodSeconds = *apiResp.Items[i].Spec.TerminationGracePeriodSeconds
+		pods[i].Spec.Containers = toDomainContainers(apiResp.Items[i].Spec.Containers)
+
+		// populate status info
+		pods[i].StatusInfo.Phase = string(apiResp.Items[i].Status.Phase)
+		pods[i].StatusInfo.QosClass = string(apiResp.Items[i].Status.QOSClass)
+		pods[i].StatusInfo.HostIP = apiResp.Items[i].Status.HostIP
+		pods[i].StatusInfo.PodIP = apiResp.Items[i].Status.PodIP
+		pods[i].StatusInfo.PodIPs = podIPsToDomainList(apiResp.Items[i].Status.PodIPs)
+		pods[i].StatusInfo.Conditions = conditionsToDomainList(apiResp.Items[i].Status.Conditions)
 	}
 
 	return pods, nil
-}
-
-func (c *Client) PodInfo(ctx context.Context, namespace, name string) (domain.Pod, error) {
-	return domain.Pod{}, nil
 }
 
 func PodsLog(ctx context.Context, namespace, name string) ([]byte, error) {
@@ -180,4 +190,32 @@ func toDomainContainers(cc []corev1.Container) []domain.Container {
 	}
 
 	return domainContainers
+}
+
+func toDomainOwnerInfoList(oref []metav1.OwnerReference) []domain.OwnerInfo {
+	resp := make([]domain.OwnerInfo, len(oref))
+	for i := range oref {
+		resp[i].Kind = oref[i].Kind
+		resp[i].Name = oref[i].Name
+	}
+
+	return resp
+}
+
+func podIPsToDomainList(ips []corev1.PodIP) []string {
+	resp := make([]string, len(ips))
+	for i := range ips {
+		resp[i] = ips[i].IP
+	}
+
+	return resp
+}
+
+func conditionsToDomainList(conds []corev1.PodCondition) []string {
+	resp := make([]string, len(conds))
+	for i := range conds {
+		resp[i] = string(conds[i].Type)
+	}
+
+	return resp
 }
