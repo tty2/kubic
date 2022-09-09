@@ -123,8 +123,18 @@ func (c *Client) GetPods(ctx context.Context, namespace string) ([]domain.Pod, e
 	return pods, nil
 }
 
-func PodsLog(ctx context.Context, namespace, name string) ([]byte, error) {
-	return nil, nil
+func (c *Client) PodsLog(ctx context.Context, namespace, name string) []byte {
+	data, err := c.Set.CoreV1().
+		Pods(namespace).
+		GetLogs(name, &corev1.PodLogOptions{}).
+		Do(ctx).
+		Raw()
+
+	if err != nil {
+		return []byte("")
+	}
+
+	return data
 }
 
 // nolint gomnd: numbers are obvious here

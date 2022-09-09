@@ -27,6 +27,7 @@ const (
 
 type podsRepo interface {
 	GetPods(ctx context.Context, namespace string) ([]domain.Pod, error)
+	PodsLog(ctx context.Context, namespace, name string) []byte
 }
 
 // Model for pods.
@@ -87,7 +88,6 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, cmd
 		case key.Matches(msg, m.app.KeyMap.FocusLeft):
 			m.changeFocusLeft()
-			m.infobar.ResetView()
 
 			return m, cmd
 		}
@@ -168,6 +168,7 @@ func (m *Model) changeFocusRight() {
 		m.focused = infoInFocus
 	case infoInFocus:
 		m.focused = logInFocus
+		m.setInfoContent()
 	}
 }
 
@@ -175,8 +176,10 @@ func (m *Model) changeFocusLeft() {
 	switch m.focused {
 	case logInFocus:
 		m.focused = infoInFocus
+		m.setInfoContent()
 	case infoInFocus:
 		m.focused = listInFocus
+		m.infobar.ResetView()
 	}
 }
 
@@ -195,9 +198,8 @@ func (m *Model) renderInfoBar() string {
 	case listInFocus:
 		infoData := m.infobar.View()
 		infoBarData = m.app.Styles.InactiveText.Render(infoData)
-	case infoInFocus:
+	case infoInFocus, logInFocus:
 		infoBarData = m.infobar.View()
-	case logInFocus:
 	}
 
 	info := lipgloss.JoinVertical(lipgloss.Left,
@@ -243,13 +245,20 @@ func (m *Model) renderInfoBarTabs() string {
 }
 
 func (m *Model) setInfoContent() {
-	dep := m.getCurrentPod()
-	if dep == nil {
+	pod := m.getCurrentPod()
+	if pod == nil {
 		m.infobar.SetContent("")
 
 		return
 	}
-	dep.Styles = m.app.Styles
+
+	if m.focused == logInFocus {
+		m.infobar.SetContent(string(m.repo.PodsLog(context.Background(), m.app.CurrentNamespace, pod.Name)))
+
+		return
+	}
+
+	pod.Styles = m.app.Styles
 	m.infobar.SetContent(
 		m.getCurrentPod().renderInfo(),
 	)
