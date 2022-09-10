@@ -97,10 +97,11 @@ kubic -t /path/to/the/json/style/file
 
 Flags list:
 
-| Short Flag | Long Flag | Environment Variable| Is Required | Type |
-| ---   | --- | --- | --- | --- |
-| -c | --config | KUBIC_KUBERNETES_CONFIG_PATH | False | string |
-| -t | --theme | KUBIC_THEME_FILE_PATH | False | string |
+| Short Flag | Long Flag | Environment Variable| Is Required | Type | Default |
+| ---   | --- | --- | --- | --- | --- |
+| -c | --config | KUBIC_KUBERNETES_CONFIG_PATH | False | string | |
+| -t | --theme | KUBIC_THEME_FILE_PATH | False | string | |
+| -l | --log_tail | KUBIC_LOG_TAIL_LINES | False | int | 100 |
 
 
 ## Customization
@@ -129,7 +130,7 @@ Classes are predefined. Set your own color with hex.
 - [x] Pods list (kubectl get pods --namespace=ns)
 - [x] Deployment info (kubectl get deployment deployment-name --namespace=ns -o=json)
 - [x] Pod info (kubectl get pods pod-name --namespace=ns -o=json)
-- [ ] Pod logs (kkubectl logs pod-name --namespace=ns)
+- [x] Pod logs (kubectl logs pod-name --namespace=ns)
 
 ***
 

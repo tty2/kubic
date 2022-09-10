@@ -25,6 +25,10 @@ const (
 	logInFocus
 )
 
+// The gap between list and info bar content:
+// it consists from 3 list right padding + vertical line + left info bar padding (minColumnGap).
+const listToInfoContentGap = 6
+
 type podsRepo interface {
 	GetPods(ctx context.Context, namespace string) ([]domain.Pod, error)
 	PodsLog(ctx context.Context, namespace, name string) []byte
@@ -266,7 +270,7 @@ func (m *Model) setInfoContent() {
 
 func (m *Model) setInfoBarHeight() {
 	m.infobar.SetWH(
-		m.app.GUI.ScreenWidth-lipgloss.Width(getHeader()),
+		m.app.GUI.ScreenWidth-lipgloss.Width(getHeader())-listToInfoContentGap,
 		m.app.GUI.Areas.MainContent.Height-tableHeaderHeight,
 	)
 	m.list.SetHeight(m.app.GUI.Areas.MainContent.Height - tableHeaderHeight)
