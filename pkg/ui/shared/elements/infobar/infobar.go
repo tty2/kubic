@@ -10,6 +10,7 @@ import (
 const (
 	continueReadHeight  = 2
 	continueReadPadding = 1
+	continueRead        = "..."
 )
 
 type Model struct {
@@ -43,19 +44,21 @@ func (m *Model) ResetView() {
 func (m *Model) View() string {
 	style := lipgloss.NewStyle().
 		Height(m.height).
-		MaxHeight(m.height).
-		Width(m.width).
-		MaxWidth(m.width)
+		MaxHeight(m.height)
 
-	var continueRead string
 	if m.viewport.ScrollPercent() < 1 {
-		continueRead = "..."
+		m.viewport.Height = m.height - continueReadPadding
+		return style.Render(lipgloss.JoinVertical(
+			lipgloss.Top,
+			m.viewport.View(),
+			lipgloss.NewStyle().Height(continueReadHeight).Render(continueRead),
+		))
 	}
 
-	return style.Copy().Render(lipgloss.JoinVertical(
+	m.viewport.Height = m.height
+	return style.Render(lipgloss.JoinVertical(
 		lipgloss.Top,
 		m.viewport.View(),
-		lipgloss.NewStyle().Height(continueReadHeight).Render(continueRead),
 	))
 }
 

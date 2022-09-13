@@ -97,7 +97,7 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 	}
 
-	if m.listInFocus() {
+	if m.focused == listInFocus {
 		m.list, cmd = m.list.Update(msg)
 		m.setInfoContent()
 	} else {
@@ -186,10 +186,6 @@ func (m *Model) changeFocusLeft() {
 		m.focused = listInFocus
 		m.infobar.ResetView()
 	}
-}
-
-func (m *Model) listInFocus() bool {
-	return m.focused == listInFocus
 }
 
 func (m *Model) resetFocus() {
