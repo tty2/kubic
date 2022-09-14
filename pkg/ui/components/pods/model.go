@@ -181,9 +181,11 @@ func (m *Model) changeFocusLeft() {
 	case logInFocus:
 		m.focused = infoInFocus
 		m.setInfoContent()
+		m.infobar.ResetIndent()
 		m.infobar.ResetView()
 	case infoInFocus:
 		m.focused = listInFocus
+		m.infobar.ResetIndent()
 		m.infobar.ResetView()
 	}
 }
