@@ -185,6 +185,7 @@ func (m *Model) infoInFocus() bool {
 
 func (m *Model) resetFocus() {
 	m.focused = listInFocus
+	m.infobar.ResetIndent()
 	m.list.ResetSelected()
 }
 

@@ -25,8 +25,13 @@ const (
 	logInFocus
 )
 
+// The gap between list and info bar content:
+// it consists from 3 list right padding + vertical line + left info bar padding (minColumnGap).
+const listToInfoContentGap = 6
+
 type podsRepo interface {
 	GetPods(ctx context.Context, namespace string) ([]domain.Pod, error)
+	PodsLog(ctx context.Context, namespace, name string) []byte
 }
 
 // Model for pods.
@@ -87,13 +92,12 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, cmd
 		case key.Matches(msg, m.app.KeyMap.FocusLeft):
 			m.changeFocusLeft()
-			m.infobar.ResetView()
 
 			return m, cmd
 		}
 	}
 
-	if m.listInFocus() {
+	if m.focused == listInFocus {
 		m.list, cmd = m.list.Update(msg)
 		m.setInfoContent()
 	} else {
@@ -168,6 +172,7 @@ func (m *Model) changeFocusRight() {
 		m.focused = infoInFocus
 	case infoInFocus:
 		m.focused = logInFocus
+		m.setInfoContent()
 	}
 }
 
@@ -175,13 +180,14 @@ func (m *Model) changeFocusLeft() {
 	switch m.focused {
 	case logInFocus:
 		m.focused = infoInFocus
+		m.setInfoContent()
+		m.infobar.ResetIndent()
+		m.infobar.ResetView()
 	case infoInFocus:
 		m.focused = listInFocus
+		m.infobar.ResetIndent()
+		m.infobar.ResetView()
 	}
-}
-
-func (m *Model) listInFocus() bool {
-	return m.focused == listInFocus
 }
 
 func (m *Model) resetFocus() {
@@ -195,9 +201,8 @@ func (m *Model) renderInfoBar() string {
 	case listInFocus:
 		infoData := m.infobar.View()
 		infoBarData = m.app.Styles.InactiveText.Render(infoData)
-	case infoInFocus:
+	case infoInFocus, logInFocus:
 		infoBarData = m.infobar.View()
-	case logInFocus:
 	}
 
 	info := lipgloss.JoinVertical(lipgloss.Left,
@@ -243,13 +248,20 @@ func (m *Model) renderInfoBarTabs() string {
 }
 
 func (m *Model) setInfoContent() {
-	dep := m.getCurrentPod()
-	if dep == nil {
+	pod := m.getCurrentPod()
+	if pod == nil {
 		m.infobar.SetContent("")
 
 		return
 	}
-	dep.Styles = m.app.Styles
+
+	if m.focused == logInFocus {
+		m.infobar.SetContent(string(m.repo.PodsLog(context.Background(), m.app.CurrentNamespace, pod.Name)))
+
+		return
+	}
+
+	pod.Styles = m.app.Styles
 	m.infobar.SetContent(
 		m.getCurrentPod().renderInfo(),
 	)
@@ -257,7 +269,7 @@ func (m *Model) setInfoContent() {
 
 func (m *Model) setInfoBarHeight() {
 	m.infobar.SetWH(
-		m.app.GUI.ScreenWidth-lipgloss.Width(getHeader()),
+		m.app.GUI.ScreenWidth-lipgloss.Width(getHeader())-listToInfoContentGap,
 		m.app.GUI.Areas.MainContent.Height-tableHeaderHeight,
 	)
 	m.list.SetHeight(m.app.GUI.Areas.MainContent.Height - tableHeaderHeight)

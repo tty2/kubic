@@ -2,14 +2,15 @@ package infobar
 
 import (
 	"github.com/charmbracelet/bubbles/key"
-	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/tty2/kubic/pkg/ui/shared/elements/viewport"
 )
 
 const (
 	continueReadHeight  = 2
 	continueReadPadding = 1
+	continueRead        = "..."
 )
 
 type Model struct {
@@ -19,10 +20,15 @@ type Model struct {
 }
 
 func New() *Model {
-	return &Model{}
+	m := Model{}
+	m.viewport.HorizontalStep = 5
+
+	return &m
 }
 
 func (m *Model) Update(msg tea.Msg) (*Model, tea.Cmd) {
+	var cmd tea.Cmd
+
 	if msg, ok := msg.(tea.KeyMsg); ok {
 		switch {
 		case key.Matches(msg, keys.Down):
@@ -30,10 +36,16 @@ func (m *Model) Update(msg tea.Msg) (*Model, tea.Cmd) {
 
 		case key.Matches(msg, keys.Up):
 			m.viewport.HalfViewUp()
+
+		case key.Matches(msg, keys.Left):
+			m.viewport.MoveLeft()
+
+		case key.Matches(msg, keys.Right):
+			m.viewport.MoveRight()
 		}
 	}
 
-	return m, nil
+	return m, cmd
 }
 
 func (m *Model) ResetView() {
@@ -43,19 +55,23 @@ func (m *Model) ResetView() {
 func (m *Model) View() string {
 	style := lipgloss.NewStyle().
 		Height(m.height).
-		MaxHeight(m.height).
-		Width(m.width).
-		MaxWidth(m.width)
+		MaxHeight(m.height)
 
-	var continueRead string
 	if m.viewport.ScrollPercent() < 1 {
-		continueRead = "..."
+		m.viewport.Height = m.height - continueReadPadding
+
+		return style.Render(lipgloss.JoinVertical(
+			lipgloss.Top,
+			m.viewport.View(),
+			lipgloss.NewStyle().Height(continueReadHeight).Render(continueRead),
+		))
 	}
 
-	return style.Copy().Render(lipgloss.JoinVertical(
+	m.viewport.Height = m.height
+
+	return style.Render(lipgloss.JoinVertical(
 		lipgloss.Top,
 		m.viewport.View(),
-		lipgloss.NewStyle().Height(continueReadHeight).Render(continueRead),
 	))
 }
 
@@ -68,4 +84,8 @@ func (m *Model) SetWH(w, h int) {
 	m.height = h - continueReadHeight
 	m.viewport.Width = w
 	m.viewport.Height = m.height - continueReadPadding
+}
+
+func (m *Model) ResetIndent() {
+	m.viewport.ResetIndent()
 }

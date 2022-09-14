@@ -13,10 +13,11 @@ import (
 )
 
 type Client struct {
-	Set *kubernetes.Clientset
+	set          *kubernetes.Clientset
+	logTailLines int64
 }
 
-func New(configPath string) (*Client, error) {
+func New(configPath string, logTailLines int64) (*Client, error) {
 	config, err := clientcmd.BuildConfigFromFlags("", configPath)
 	if err != nil {
 		return nil, err
@@ -28,12 +29,13 @@ func New(configPath string) (*Client, error) {
 	}
 
 	return &Client{
-		Set: clientSet,
+		set:          clientSet,
+		logTailLines: logTailLines,
 	}, nil
 }
 
 func (c *Client) GetNamespaces(ctx context.Context) ([]domain.Namespace, error) {
-	apiResp, err := c.Set.CoreV1().Namespaces().List(ctx, metav1.ListOptions{})
+	apiResp, err := c.set.CoreV1().Namespaces().List(ctx, metav1.ListOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -51,7 +53,7 @@ func (c *Client) GetNamespaces(ctx context.Context) ([]domain.Namespace, error) 
 }
 
 func (c *Client) GetDeployments(ctx context.Context, namespace string) ([]domain.Deployment, error) {
-	apiResp, err := c.Set.AppsV1().Deployments(namespace).List(ctx, metav1.ListOptions{})
+	apiResp, err := c.set.AppsV1().Deployments(namespace).List(ctx, metav1.ListOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -84,7 +86,7 @@ func (c *Client) GetDeployments(ctx context.Context, namespace string) ([]domain
 }
 
 func (c *Client) GetPods(ctx context.Context, namespace string) ([]domain.Pod, error) {
-	apiResp, err := c.Set.CoreV1().Pods(namespace).List(ctx, metav1.ListOptions{})
+	apiResp, err := c.set.CoreV1().Pods(namespace).List(ctx, metav1.ListOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -123,8 +125,19 @@ func (c *Client) GetPods(ctx context.Context, namespace string) ([]domain.Pod, e
 	return pods, nil
 }
 
-func PodsLog(ctx context.Context, namespace, name string) ([]byte, error) {
-	return nil, nil
+func (c *Client) PodsLog(ctx context.Context, namespace, name string) []byte {
+	data, err := c.set.CoreV1().
+		Pods(namespace).
+		GetLogs(name, &corev1.PodLogOptions{
+			TailLines: &c.logTailLines,
+		}).
+		Do(ctx).
+		Raw()
+	if err != nil {
+		return []byte("")
+	}
+
+	return data
 }
 
 // nolint gomnd: numbers are obvious here

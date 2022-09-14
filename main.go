@@ -25,7 +25,7 @@ func run() error {
 
 	theme := themes.InitTheme(cfg.ThemePath)
 
-	k8sClient, err := k8s.New(cfg.KubeConfigPath)
+	k8sClient, err := k8s.New(cfg.KubeConfigPath, cfg.LogTail)
 	if err != nil {
 		return err
 	}

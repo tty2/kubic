@@ -10,7 +10,7 @@ import (
 	"github.com/tty2/kubic/pkg/ui/shared/elements/divider"
 )
 
-const fullHelpHeigh = 2
+const fullHelpHeigh = 3
 
 type Model struct {
 	app  *shared.App
