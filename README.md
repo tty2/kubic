@@ -122,16 +122,6 @@ Classes are predefined. Set your own color with hex.
 }
 ```
 
-## Roadmap
-
-- [x] k8s calls list
-- [x] Namespaces list (kubectl get namespace)
-- [x] Deployments list (kubectl get deployments --namespace=ns)
-- [x] Pods list (kubectl get pods --namespace=ns)
-- [x] Deployment info (kubectl get deployment deployment-name --namespace=ns -o=json)
-- [x] Pod info (kubectl get pods pod-name --namespace=ns -o=json)
-- [x] Pod logs (kubectl logs pod-name --namespace=ns)
-
 ***
 
 Powered by [Charm](https://charm.sh).
