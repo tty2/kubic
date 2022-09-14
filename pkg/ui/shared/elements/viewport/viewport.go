@@ -18,6 +18,7 @@ func New(width, height int) (m Model) {
 	m.Height = height
 	m.HorizontalStep = defaultHorizontalStep
 	m.setInitialValues()
+
 	return m
 }
 
@@ -101,6 +102,7 @@ func (m Model) ScrollPercent() float64 {
 	h := float64(m.Height)
 	t := float64(len(m.lines) - 1)
 	v := y / (t - h)
+
 	return math.Max(0.0, math.Min(1.0, v))
 }
 
@@ -149,6 +151,7 @@ func (m Model) scrollArea() (top, bottom int) {
 	if top > 0 && bottom > top {
 		bottom--
 	}
+
 	return top, bottom
 }
 
@@ -165,6 +168,7 @@ func (m *Model) ViewDown() []string {
 	}
 
 	m.SetYOffset(m.YOffset + m.Height)
+
 	return m.visibleLines()
 }
 
@@ -175,6 +179,7 @@ func (m *Model) ViewUp() []string {
 	}
 
 	m.SetYOffset(m.YOffset - m.Height)
+
 	return m.visibleLines()
 }
 
@@ -185,6 +190,7 @@ func (m *Model) HalfViewDown() (lines []string) {
 	}
 
 	m.SetYOffset(m.YOffset + m.Height/2)
+
 	return m.visibleLines()
 }
 
@@ -195,6 +201,7 @@ func (m *Model) HalfViewUp() (lines []string) {
 	}
 
 	m.SetYOffset(m.YOffset - m.Height/2)
+
 	return m.visibleLines()
 }
 
@@ -208,6 +215,7 @@ func (m *Model) LineDown(n int) (lines []string) {
 	// greater than the number of lines we actually have left before we reach
 	// the bottom.
 	m.SetYOffset(m.YOffset + n)
+
 	return m.visibleLines()
 }
 
@@ -221,6 +229,7 @@ func (m *Model) LineUp(n int) (lines []string) {
 	// Make sure the number of lines by which we're going to scroll isn't
 	// greater than the number of lines we are from the top.
 	m.SetYOffset(m.YOffset - n)
+
 	return m.visibleLines()
 }
 
@@ -248,12 +257,14 @@ func (m *Model) GotoTop() (lines []string) {
 	}
 
 	m.SetYOffset(0)
+
 	return m.visibleLines()
 }
 
 // GotoBottom sets the viewport to the bottom position.
 func (m *Model) GotoBottom() (lines []string) {
 	m.SetYOffset(m.maxYOffset())
+
 	return m.visibleLines()
 }
 
@@ -267,6 +278,7 @@ func Sync(m Model) tea.Cmd {
 		return nil
 	}
 	top, bottom := m.scrollArea()
+
 	return tea.SyncScrollArea(m.visibleLines(), top, bottom)
 }
 
@@ -281,6 +293,7 @@ func ViewDown(m Model, lines []string) tea.Cmd {
 		return nil
 	}
 	top, bottom := m.scrollArea()
+
 	return tea.ScrollDown(lines, top, bottom)
 }
 
@@ -292,6 +305,7 @@ func ViewUp(m Model, lines []string) tea.Cmd {
 		return nil
 	}
 	top, bottom := m.scrollArea()
+
 	return tea.ScrollUp(lines, top, bottom)
 }
 
@@ -299,9 +313,11 @@ func ViewUp(m Model, lines []string) tea.Cmd {
 func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 	var cmd tea.Cmd
 	m, cmd = m.updateAsModel(msg)
+
 	return m, cmd
 }
 
+// nolint funlen: it doesn't spoil readability here
 // Author's note: this method has been broken out to make it easier to
 // potentially transition Update to satisfy tea.Model.
 func (m Model) updateAsModel(msg tea.Msg) (Model, tea.Cmd) {
@@ -407,6 +423,7 @@ func clamp(v, low, high int) int {
 	if high < low {
 		low, high = high, low
 	}
+
 	return min(high, max(low, v))
 }
 
@@ -414,6 +431,7 @@ func min(a, b int) int {
 	if a < b {
 		return a
 	}
+
 	return b
 }
 
@@ -421,6 +439,7 @@ func max(a, b int) int {
 	if a > b {
 		return a
 	}
+
 	return b
 }
 

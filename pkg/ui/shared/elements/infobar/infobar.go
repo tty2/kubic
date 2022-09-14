@@ -59,6 +59,7 @@ func (m *Model) View() string {
 
 	if m.viewport.ScrollPercent() < 1 {
 		m.viewport.Height = m.height - continueReadPadding
+
 		return style.Render(lipgloss.JoinVertical(
 			lipgloss.Top,
 			m.viewport.View(),
@@ -67,6 +68,7 @@ func (m *Model) View() string {
 	}
 
 	m.viewport.Height = m.height
+
 	return style.Render(lipgloss.JoinVertical(
 		lipgloss.Top,
 		m.viewport.View(),
