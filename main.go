@@ -30,7 +30,7 @@ func run() error {
 		return err
 	}
 
-	gui, err := ui.New(k8sClient, theme)
+	gui, err := ui.New(k8sClient, theme, cfg.UpdateInterval)
 	if err != nil {
 		return err
 	}
