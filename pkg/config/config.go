@@ -17,6 +17,7 @@ import (
 type Config struct {
 	KubeConfigPath string `short:"c" long:"config" env:"KUBIC_KUBERNETES_CONFIG_PATH" description:"kubernetes config file path"`
 	ThemePath      string `short:"t" long:"theme" env:"KUBIC_THEME_FILE_PATH" default:"./style.json" description:"theme file path"`
+	UpdateInterval int    `short:"u" long:"update_interval" env:"KUBIC_UPDATE_INTERVAL" default:"3" description:"update interval in seconds"`
 	LogTail        int64  `short:"l" long:"log_tail" env:"KUBIC_LOG_TAIL_LINES" default:"100" description:"log tail lines"`
 }
 

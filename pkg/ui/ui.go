@@ -3,6 +3,7 @@ package ui
 import (
 	"os"
 	"strings"
+	"time"
 
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
@@ -18,6 +19,8 @@ import (
 	"golang.org/x/term"
 )
 
+const defaultUpdateInterval = time.Second * 3
+
 type components struct {
 	tabs        tea.Model
 	namespaces  tea.Model
@@ -31,7 +34,7 @@ type MainModel struct {
 	app        *shared.App
 }
 
-func New(k8sClient *k8s.Client, theme themes.Theme) (tea.Model, error) {
+func New(k8sClient *k8s.Client, theme themes.Theme, updateSec int) (tea.Model, error) {
 	var err error
 	app := shared.NewApp(theme)
 	model := MainModel{
@@ -65,6 +68,8 @@ func New(k8sClient *k8s.Client, theme themes.Theme) (tea.Model, error) {
 		return nil, err
 	}
 	model.app.ResizeAreas()
+
+	go model.runContinuousUpdate(updateSec)
 
 	return &model, nil
 }
@@ -150,4 +155,16 @@ func (model *MainModel) onWindowSizeChanged(msg tea.WindowSizeMsg) {
 	model.app.GUI.ScreenWidth = msg.Width
 	model.app.GUI.ScreenHeight = msg.Height
 	model.app.ResizeAreas()
+}
+
+func (model *MainModel) runContinuousUpdate(updateSec int) {
+	updateInterval := defaultUpdateInterval
+	if updateSec > 0 {
+		updateInterval = time.Second * time.Duration(updateSec)
+	}
+
+	ticker := time.NewTicker(updateInterval)
+	for range ticker.C {
+		model.app.OnUpdateNamespace()
+	}
 }
